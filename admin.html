@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MYSMIE 迈思美 · 公司后台</title>
+<style>
+:root{--green:#0D8456;--forest:#233710;--ink:#1B1C17;--paper:#FBFAF6;--line:#E8E5DB;--muted:#A9A698;--warn:#B4543A;--amber:#A8814A;
+--serif:"Didot","Didot LT Pro","Playfair Display",Georgia,"Songti SC","STSong",serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:"HarmonyOS Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.eyebrow{font-size:10px;letter-spacing:.4em;color:var(--muted)}
+.serif{font-family:var(--serif);font-weight:400}
+.btn{border:0;background:var(--forest);color:#fff;font-size:13px;padding:12px 22px;letter-spacing:.22em;cursor:pointer;border-radius:2px;text-indent:.22em}
+.btn.ghost{background:transparent;color:var(--ink);text-decoration:underline;text-underline-offset:4px;letter-spacing:.08em;padding:8px 4px}
+.btn.sm{padding:7px 14px;font-size:12px;letter-spacing:.1em}
+input,select{border:0;border-bottom:1px solid var(--ink);background:transparent;padding:9px 2px;font-size:15px;font-family:var(--serif);color:var(--ink)}
+input:focus,select:focus{outline:none}
+/* 登录 */
+#login{position:fixed;inset:0;background:var(--forest);display:flex;align-items:center;justify-content:center;z-index:99}
+#login .panel{width:min(360px,86vw);text-align:center;color:#F6FBEF}
+#login input{width:100%;border-color:rgba(255,255,255,.4);color:#fff;text-align:center;margin-top:18px;font-size:16px}
+#login input::placeholder{color:rgba(255,255,255,.45);font-size:13px;letter-spacing:.2em}
+#login .btn{background:#fff;color:var(--forest);width:100%;margin-top:30px}
+/* 布局 */
+.shell{display:flex;min-height:100vh}
+.side{width:212px;border-right:1px solid var(--line);padding:30px 0;flex-shrink:0}
+.side .brand{padding:0 24px 26px;border-bottom:1px solid var(--line)}
+.side .brand img{height:30px}
+.side .brand div{font-size:9.5px;letter-spacing:.4em;color:var(--muted);margin-top:8px}
+.nav a{display:block;padding:13px 24px;font-size:13.5px;color:#6B6B60;cursor:pointer;letter-spacing:.06em;border-left:2px solid transparent}
+.nav a.on{color:var(--ink);font-weight:600;border-left-color:var(--green);background:#F4F2E9}
+.main{flex:1;padding:34px 40px;max-width:1080px}
+.pagehead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:14px;margin-bottom:8px}
+.pagehead h1{font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:.1em}
+.pagehead .muted{font-size:11px;color:var(--muted);letter-spacing:.08em}
+/* 大数字 */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:22px}
+.kpi{background:var(--paper);padding:22px 18px}
+.kpi b{font-family:var(--serif);font-size:38px;font-weight:400;display:block;margin-top:10px}
+.kpi small{font-size:11px;color:var(--muted)}
+/* 表格 */
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th{font-size:10px;letter-spacing:.18em;color:var(--muted);font-weight:500;text-align:left;padding:14px 10px 10px;border-bottom:1px solid var(--ink)}
+td{padding:14px 10px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle}
+tr.click{cursor:pointer}
+tr.click:hover{background:#F4F2E9}
+.num{font-family:var(--serif);font-variant-numeric:tabular-nums}
+.tag{font-size:10px;letter-spacing:.08em;padding:2px 0}
+.tag.ok{color:var(--green)}.tag.warn{color:var(--amber)}.tag.off{color:#C9C6B8}
+.sect{padding:24px 0;border-bottom:1px solid var(--line)}
+.sect:last-child{border-bottom:0}
+.row{display:flex;justify-content:space-between;align-items:center}
+.rrow{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.rrow:last-child{border-bottom:0}
+.rrow b{font-family:var(--serif);font-weight:500}
+.note-green{border-left:2px solid var(--green);padding-left:14px}
+.spark{display:flex;align-items:flex-end;gap:7px;height:54px;margin-top:12px}
+.spark i{flex:1;background:#EFEDE3}
+.spark i.hl{background:var(--green)}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(27,28,23,.94);color:#fff;font-size:13px;padding:11px 20px;border-radius:2px;display:none;z-index:98;letter-spacing:.04em}
+.pg{display:none}.pg.on{display:block}
+.checkbox{width:16px;height:16px;border:1.5px solid #B9B6A9;display:inline-block;vertical-align:-3px;margin-right:8px;cursor:pointer;border-radius:2px}
+.checkbox.on{background:var(--forest);border-color:var(--forest)}
+.muted{color:var(--muted)}
+.back{cursor:pointer;font-size:13px;color:var(--muted);letter-spacing:.1em}
+@media(max-width:760px){
+  .shell{flex-direction:column}
+  .side{width:100%;padding:14px 0 0;border-right:0;border-bottom:1px solid var(--line)}
+  .side .brand{padding:0 18px 12px;border-bottom:0}
+  .nav{display:flex;overflow-x:auto;border-top:1px solid var(--line)}
+  .nav a{white-space:nowrap;border-left:0;border-bottom:2px solid transparent;padding:12px 14px}
+  .nav a.on{border-bottom-color:var(--green);background:transparent}
+  .main{padding:22px 18px}
+  .kpis{grid-template-columns:1fr 1fr}
+  th:nth-child(5),td:nth-child(5){display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- 登录 -->
+<div id="login">
+  <div class="panel">
+    <div style="font-family:var(--serif);font-size:34px;letter-spacing:.2em">MYSMIE</div>
+    <div style="font-size:10px;letter-spacing:.5em;opacity:.7;margin-top:10px">迈思美 · 公司后台</div>
+    <input type="text" placeholder="账号（演示随意输入）" id="lgU">
+    <input type="password" placeholder="密码" id="lgP">
+    <button class="btn" onclick="doLogin()">登 录</button>
+    <p style="font-size:10.5px;opacity:.55;margin-top:18px;letter-spacing:.1em">演示环境 · 数据为模拟 · 正式版接企业账号体系</p>
+  </div>
+</div>
+
+<div class="shell">
+  <aside class="side">
+    <div class="brand"><div style="font-family:var(--serif);font-size:21px;letter-spacing:.18em">MYSMIE</div><div>迈思美 · 公司后台</div></div>
+    <nav class="nav" id="nav">
+      <a class="on" data-p="dash" onclick="nav('dash')">总览</a>
+      <a data-p="users" onclick="nav('users')">用户管理</a>
+      <a data-p="remind" onclick="nav('remind')">提醒中心</a>
+      <a data-p="shares" onclick="nav('shares')">共享关系</a>
+      <a data-p="logs" onclick="nav('logs')">发送记录</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <!-- 总览 -->
+    <section class="pg on" id="pg-dash">
+      <div class="pagehead"><h1>今日总览</h1><span class="muted" id="dashDate"></span></div>
+      <div class="kpis">
+        <div class="kpi"><span class="eyebrow">应称重</span><b>128</b><small>本期在营用户</small></div>
+        <div class="kpi"><span class="eyebrow">已称重</span><b id="kWeigh">96</b><small>完成率 75%</small></div>
+        <div class="kpi"><span class="eyebrow">已记录餐食</span><b id="kMeal">88</b><small>≥1 餐</small></div>
+        <div class="kpi"><span class="eyebrow">待跟进</span><b style="color:var(--amber)">7</b><small>连续 2 天未记录</small></div>
+      </div>
+      <div class="sect">
+        <div class="row"><span class="eyebrow">最近动态</span></div>
+        <div class="rrow"><span>李女士 完成晨起称重 58.4 kg（蓝牙）</span><span class="muted">07:42</span></div>
+        <div class="rrow"><span>王女士 提交健康调研表</span><span class="muted">07:31</span></div>
+        <div class="rrow"><span>张老师 给 李女士 写「老师的话」</span><span class="muted">07:05</span></div>
+        <div class="rrow"><span>陈女士 上传阶段记录（体型照 / 围度）</span><span class="muted">06:58</span></div>
+      </div>
+      <div class="sect">
+        <div class="row"><span class="eyebrow">本期伙伴营</span><span class="muted" style="font-size:11px">21 天轻体伙伴营 · 第 6 期</span></div>
+        <div class="rrow"><span>开营 06-08 → 结营 06-28</span><b>第 4 天</b></div>
+        <div class="rrow"><span>整体记录完成率</span><b>82%</b></div>
+      </div>
+    </section>
+
+    <!-- 用户管理 -->
+    <section class="pg" id="pg-users">
+      <div class="pagehead"><h1>用户管理</h1><span class="muted">点击行查看详情 · 共 <span id="uCount"></span> 人</span></div>
+      <div style="margin-top:16px"><input type="text" placeholder="搜索姓名 / 手机号" style="width:240px" oninput="renderUsers(this.value)">
+        <select onchange="renderUsers('',this.value)" style="margin-left:18px"><option value="">全部老师</option><option>张老师</option><option>陈顾问</option><option>刘老师</option></select></div>
+      <table><thead><tr><th>用户</th><th>服务老师</th><th>今晨体重</th><th>今日记录</th><th>健康调研</th><th>营期</th></tr></thead><tbody id="uBody"></tbody></table>
+    </section>
+
+    <!-- 用户详情 -->
+    <section class="pg" id="pg-detail">
+      <div class="pagehead"><h1 id="dName">—</h1><span class="back" onclick="nav('users')">‹ 返回列表</span></div>
+      <div class="sect">
+        <div class="row"><span class="eyebrow">体重趋势 · 近七天</span><b class="serif" id="dWeight" style="font-size:26px">—</b></div>
+        <div class="spark" id="dSpark"></div>
+      </div>
+      <div class="sect">
+        <span class="eyebrow">今日记录</span>
+        <div class="rrow"><span>晨重</span><b id="dW2">—</b></div>
+        <div class="rrow"><span>摄入（估算）</span><b id="dK">—</b></div>
+        <div class="rrow"><span>饮水 / 排便</span><b id="dWB">—</b></div>
+        <div class="rrow"><span>健康调研</span><b id="dSurvey">—</b></div>
+      </div>
+      <div class="sect">
+        <div class="row"><span class="eyebrow">服务老师（归属）</span>
+          <span><select id="dAdvisor"><option>张老师</option><option>陈顾问</option><option>刘老师</option></select>
+          <button class="btn sm" style="margin-left:12px" onclick="changeAdvisor()">改派</button></span></div>
+        <p class="muted" style="font-size:11px;margin-top:10px" id="dAdvisorLog">归属日志：06-08 系统分配 → 张老师</p>
+      </div>
+      <div class="sect">
+        <span class="eyebrow">快捷动作</span>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn sm" onclick="sendTo(currentUser,'camp')">发送新营邀请</button>
+          <button class="btn sm" onclick="sendTo(currentUser,'survey')">提醒填写调研</button>
+          <button class="btn ghost sm" onclick="toast('阶段对比（演示）：体型照 · 围度 · 报告 · 舌诊')">查看阶段对比</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 提醒中心 -->
+    <section class="pg" id="pg-remind">
+      <div class="pagehead"><h1>提醒中心</h1><span class="muted">用户打开小程序时弹窗 · 同类每人每日 ≤1 条</span></div>
+      <div class="sect">
+        <span class="eyebrow">第一步 · 圈选用户</span>
+        <table><thead><tr><th style="width:40px"></th><th>用户</th><th>上一期</th><th>服务老师</th><th>状态</th></tr></thead><tbody id="rBody"></tbody></table>
+      </div>
+      <div class="sect">
+        <span class="eyebrow">第二步 · 选择提醒</span>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="sendBatch('camp')">发送「新一期伙伴营邀请」</button>
+          <button class="btn" style="background:var(--green)" onclick="sendBatch('survey')">发送「健康调研提醒」</button>
+        </div>
+        <p class="muted" style="font-size:11.5px;margin-top:14px;line-height:1.8">说明：勾选「演示用户（你）」并发送后，<b>在同一部手机/浏览器打开用户端</b>，将真实弹出该提醒——这就是完整的「后台发送 → 用户确认 → 回传」链路演示。</p>
+      </div>
+    </section>
+
+    <!-- 共享关系 -->
+    <section class="pg" id="pg-shares">
+      <div class="pagehead"><h1>共享关系</h1><span class="muted">谁在看谁的数据 · 可审计</span></div>
+      <table><thead><tr><th>用户</th><th>服务者</th><th>来源</th><th>建立时间</th><th></th></tr></thead>
+      <tbody id="sBody"></tbody></table>
+      <p class="muted" style="font-size:11px;margin-top:14px">解除后服务者即时失去查看权限；全程留痕。</p>
+    </section>
+
+    <!-- 发送记录 -->
+    <section class="pg" id="pg-logs">
+      <div class="pagehead"><h1>发送记录</h1><span class="muted">提醒触达与确认状态</span></div>
+      <table><thead><tr><th>时间</th><th>用户</th><th>类型</th><th>状态</th></tr></thead><tbody id="lBody"></tbody></table>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',2400)}
+function doLogin(){$('login').style.display='none';toast('欢迎回来 · 迈思美公司后台（演示）')}
+function nav(p){document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));$('pg-'+p).classList.add('on');
+document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===p));window.scrollTo(0,0)}
+
+/* ===== 数据（演示 + 同浏览器真实联动）===== */
+const USERS=[
+ {n:'演示用户（你）',real:true,adv:'张老师',last:'新用户',w:null,meal:null,survey:null,camp:'第 6 期'},
+ {n:'李女士',ph:'138****0001',adv:'张老师',last:'19/21 天',w:'58.4',meal:'3 餐 ≈1210',survey:'已完成',camp:'第 6 期'},
+ {n:'王女士',ph:'139****0002',adv:'张老师',last:'15/21 天',w:'—',meal:'未记录',survey:'已完成',camp:'第 6 期'},
+ {n:'陈女士',ph:'137****0003',adv:'陈顾问',last:'21/21 天',w:'63.2',meal:'2 餐 ≈800',survey:'已完成',camp:'第 6 期'},
+ {n:'赵女士',ph:'136****0004',adv:'陈顾问',last:'12/21 天',w:'70.1',meal:'1 餐 ≈340',survey:'未完成',camp:'第 6 期'},
+ {n:'周女士',ph:'135****0005',adv:'刘老师',last:'18/21 天',w:'55.8',meal:'3 餐 ≈1150',survey:'已完成',camp:'第 6 期'},
+ {n:'吴女士',ph:'133****0006',adv:'刘老师',last:'9/21 天',w:'—',meal:'未记录',survey:'未完成',camp:'第 6 期'},
+];
+function realState(){try{return JSON.parse(localStorage.getItem('msm5'))||null}catch(e){return null}}
+function hydrate(){const r=realState();const u=USERS[0];
+ if(r){u.w=r.weight||null;const k=Object.values(r.meals||{}).filter(Boolean).reduce((s,m)=>s+m.kcal,0);
+  u.meal=k?`≈${k} kcal`:'未记录';u.survey=r.surveyDone?'已完成':'未完成';}}
+let currentUser=null;
+function renderUsers(q='',adv=''){hydrate();const tb=$('uBody');tb.innerHTML='';
+ USERS.filter(u=>(!q||u.n.includes(q)||(u.ph||'').includes(q))&&(!adv||u.adv===adv)).forEach(u=>{
+  tb.innerHTML+=`<tr class="click" onclick="openDetail('${u.n}')"><td><b>${u.n}</b> <span class="muted" style="font-size:11px">${u.ph||''}</span>${u.real?' <span class="tag ok">本机真实数据</span>':''}</td>
+  <td>${u.adv}</td><td class="num">${u.w?u.w+' kg':'<span class=muted>未称</span>'}</td>
+  <td>${u.meal&&u.meal!=='未记录'?`<span class="tag ok">${u.meal}</span>`:'<span class="tag off">未记录</span>'}</td>
+  <td>${u.survey==='已完成'?'<span class="tag ok">已完成</span>':'<span class="tag warn">未完成</span>'}</td><td>${u.camp}</td></tr>`});
+ $('uCount').textContent=USERS.length}
+function openDetail(n){const u=USERS.find(x=>x.n===n);if(!u)return;currentUser=u;nav('detail');
+ $('dName').textContent=u.n;$('dWeight').textContent=u.w?u.w+' kg':'未称';
+ $('dW2').textContent=u.w?u.w+' kg':'未称';$('dK').textContent=u.meal||'未记录';
+ $('dWB').textContent=u.real&&realState()?`${realState().water||0} 杯 / ${realState().bowel||0} 次`:'6 杯 / 1 次';
+ $('dSurvey').textContent=u.survey||'未完成';$('dAdvisor').value=u.adv;
+ $('dAdvisorLog').textContent=`归属日志：06-08 系统分配 → ${u.adv}`;
+ const data=[60,59.8,59.5,59.2,59,58.8,parseFloat(u.w)||58.6];const mn=Math.min(...data)-.3,mx=Math.max(...data);
+ $('dSpark').innerHTML=data.map((v,i)=>`<i class="${i===6?'hl':''}" style="height:${14+((v-mn)/(mx-mn))*86}%"></i>`).join('')}
+function changeAdvisor(){const v=$('dAdvisor').value;if(!currentUser)return;
+ const old=currentUser.adv;currentUser.adv=v;
+ $('dAdvisorLog').textContent=`归属日志：06-08 系统分配 → ${old} ｜ ${stamp()} 后台改派 → ${v}（操作人：admin · 已留痕）`;
+ renderUsers();toast(`已改派给 ${v} · 日志留痕`)}
+
+/* 提醒中心 */
+const picked=new Set();
+function renderRemind(){const tb=$('rBody');tb.innerHTML='';USERS.forEach((u,i)=>{
+ tb.innerHTML+=`<tr><td><span class="checkbox ${picked.has(i)?'on':''}" onclick="togglePick(${i})"></span></td>
+ <td><b>${u.n}</b>${u.real?' <span class="tag ok">本机</span>':''}</td><td>${u.last}</td><td>${u.adv}</td>
+ <td>${u.survey==='已完成'?'<span class="tag ok">调研已完成</span>':'<span class="tag warn">调研未完成</span>'}</td></tr>`})}
+function togglePick(i){picked.has(i)?picked.delete(i):picked.add(i);renderRemind()}
+const LOGS=[{t:'06-10 14:02',u:'李女士',k:'新营邀请',s:'已接受'},{t:'06-10 14:02',u:'王女士',k:'新营邀请',s:'待确认'}];
+function stamp(){const d=new Date();return `06-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`}
+function sendBatch(type){if(!picked.size)return toast('先勾选用户');
+ [...picked].forEach(i=>doSend(USERS[i],type));picked.clear();renderRemind();renderLogs();
+ toast(`已发送 ${type==='camp'?'新营邀请':'调研提醒'} · 用户打开小程序时弹窗`)}
+function sendTo(u,type){if(!u)return;doSend(u,type);renderLogs();toast(`已发送给 ${u.n}`)}
+function doSend(u,type){
+ LOGS.unshift({t:stamp(),u:u.n,k:type==='camp'?'新营邀请':'调研提醒',s:u.real?'已送达·待打开':'待确认'});
+ if(u.real){/* 真实联动：写入用户端 localStorage */
+  try{const r=realState();if(r&&r.notices){
+   const id=Date.now();
+   r.notices.unshift(type==='camp'
+    ?{id,type:'camp',title:'新一期「21 天轻体伙伴营」邀请（来自公司后台）',body:'公司刚刚通过后台向你发出了新一期邀请——这条提醒就是从后台「提醒中心」真实发出的。',done:false}
+    :{id,type:'survey',title:'健康调研提醒（来自公司后台）',body:'公司提醒你完成健康调研表，3 分钟，入你的健康档案。',done:false});
+   localStorage.setItem('msm5',JSON.stringify(r));}}catch(e){}}}
+function renderLogs(){$('lBody').innerHTML=LOGS.map(l=>`<tr><td class="muted">${l.t}</td><td>${l.u}</td><td>${l.k}</td>
+ <td>${l.s==='已接受'?'<span class="tag ok">已接受</span>':l.s.includes('送达')?'<span class="tag ok">'+l.s+'</span>':'<span class="tag warn">'+l.s+'</span>'}</td></tr>`).join('')}
+
+/* 共享关系 */
+const SHARES=[{o:'李女士',v:'张老师',src:'用户邀请',t:'06-08'},{o:'李女士',v:'陈顾问',src:'公司指派',t:'06-09'},{o:'王女士',v:'张老师',src:'用户邀请',t:'06-08'},{o:'演示用户（你）',v:'张老师',src:'用户邀请',t:'06-08'}];
+function renderShares(){$('sBody').innerHTML=SHARES.map((s,i)=>`<tr><td>${s.o}</td><td>${s.v}</td><td>${s.src}</td><td class="muted">${s.t}</td>
+ <td><button class="btn ghost sm" onclick="SHARES.splice(${i},1);renderShares();toast('已解除 · 对方即时失访 · 留痕')">解除</button></td></tr>`).join('')}
+
+$('dashDate').textContent=new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'});
+renderUsers();renderRemind();renderLogs();renderShares();
+</script>
+</body>
+</html>
