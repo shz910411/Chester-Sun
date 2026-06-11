@@ -258,7 +258,7 @@ function sendTo(u,type){if(!u)return;doSend(u,type);renderLogs();toast(`已发�
 function doSend(u,type){
  LOGS.unshift({t:stamp(),u:u.n,k:type==='camp'?'新营邀请':'调研提醒',s:u.real?'已送达·待打开':'待确认'});
  if(u.real){/* 真实联动：写入用户端 localStorage */
-  try{const r=realState();if(r&&r.notices){
+  try{let r=realState();if(!r)r={};if(!r.notices)r.notices=[];{
    const id=Date.now();
    r.notices.unshift(type==='camp'
     ?{id,type:'camp',title:'新一期「21 天轻体伙伴营」邀请（来自公司后台）',body:'公司刚刚通过后台向你发出了新一期邀请——这条提醒就是从后台「提醒中心」真实发出的。',done:false}
