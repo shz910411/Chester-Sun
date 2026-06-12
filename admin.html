@@ -111,6 +111,7 @@ tr.click:hover{background:#F4F8F4}
       <a class="on" data-p="dash" onclick="nav('dash')">总览</a>
       <a data-p="checkin" onclick="nav('checkin')">今日打卡</a>
       <a data-p="daily" onclick="nav('daily')">日报汇总</a>
+      <a data-p="camps" onclick="nav('camps')">营期管理</a>
       <a data-p="users" onclick="nav('users')">用户管理</a>
       <a data-p="alerts" onclick="nav('alerts')">警示中心 <span id="alertN" class="badge bad" style="padding:1px 7px">3</span></a>
       <a data-p="remind" onclick="nav('remind')">提醒中心</a>
@@ -190,6 +191,61 @@ tr.click:hover{background:#F4F8F4}
           <tr><td>陈顾问</td><td class="num">4</td><td class="num">3</td><td class="num">2</td><td class="num">0</td></tr>
           <tr><td>刘老师</td><td class="num">3</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr>
         </tbody></table>
+      </div>
+    </section>
+
+    <!-- ③·B 营期管理 -->
+    <section class="pg" id="pg-camps">
+      <div class="pagehead"><h1>营期管理</h1><span class="sub">发起活动 · 圈人建营 · 数据监控</span></div>
+      <div class="card">
+        <div class="sect-title">创建新打卡营</div>
+        <div class="toolbar">
+          <input type="text" id="campName" placeholder="营期名称，如：7 月轻体冲刺营" style="width:240px">
+          <select id="campDays"><option>21 天</option><option>28 天</option><option>14 天（体验）</option></select>
+          <select id="campWho"><option>圈人：全部活跃用户（12）</option><option>圈人：上期完成率 ≥70%（8）</option><option>圈人：手动勾选…</option></select>
+          <button class="btn green" onclick="createCamp()">创建并发送邀请</button>
+        </div>
+        <p class="muted" style="font-size:13px">创建后自动向圈选用户发送「弹窗邀请」，接受即入营；老师同步收到名单。</p>
+      </div>
+      <div class="card">
+        <div class="sect-title">营期列表</div>
+        <table><thead><tr><th>营期</th><th>周期</th><th>人数</th><th>状态</th><th></th></tr></thead><tbody id="campBody"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ③·C 营期详情 · 减脂数据监控 -->
+    <section class="pg" id="pg-campDetail">
+      <div class="pagehead"><h1>21 天轻体伙伴营 · 第 6 期</h1><span class="back" onclick="nav('camps')">‹ 返回营期列表</span></div>
+      <div class="kpis">
+        <div class="kpi"><span class="lbl">在营 / 天数</span><b class="num">12<small style="font-size:15px;color:#999"> 人</small></b><small>第 4 / 21 天</small></div>
+        <div class="kpi"><span class="lbl">平均减重</span><b class="num" style="color:var(--green)">−1.21<small style="font-size:14px;color:#999"> kg</small></b><small>开营至今</small></div>
+        <div class="kpi"><span class="lbl">累计减脂肪</span><b class="num" style="color:var(--green)">−9.8<small style="font-size:14px;color:#999"> kg</small></b><small>全营合计（秤端体脂换算）</small></div>
+        <div class="kpi"><span class="lbl">今日完整打卡</span><b class="num">7<small style="font-size:15px;color:#999">/12</small></b><small>称重+餐食</small></div>
+        <div class="kpi"><span class="lbl">风险人员</span><b style="color:var(--warn)">5</b><small>缺卡/掉肌肉/平台期</small></div>
+      </div>
+      <div class="card">
+        <div class="sect-title">减重质量拆解（这一营减下来的到底是什么）</div>
+        <div class="rrow"><span>脂肪 <b style="color:var(--green)">−9.8 kg（77%）</b></span><div class="bar" style="margin:0 12px"><i style="width:77%"></i></div><span class="badge ok">健康主体 ✓</span></div>
+        <div class="rrow"><span>水分波动 −2.0 kg（16%）</span><div class="bar" style="margin:0 12px"><i style="width:16%;background:#7FA8C9"></i></div><span class="badge off">正常</span></div>
+        <div class="rrow"><span>肌肉 −0.9 kg（7%）</span><div class="bar" style="margin:0 12px"><i style="width:7%;background:var(--amber)"></i></div><span class="badge warn">关注</span></div>
+        <p class="muted" style="font-size:13px;margin-top:10px">减重质量好 = 减脂肪、守肌肉、水分自然波动。<b>肌肉流失占比 &gt;15% 的个体见下方风险表</b>（通常是蛋白吃不够——211 的"1 份蛋白"没落实）。</p>
+      </div>
+      <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi"><span class="lbl">内脏脂肪改善</span><b class="num">6<small style="font-size:15px;color:#999"> 人下降</small></b><small>平均 −0.7 级</small></div>
+        <div class="kpi"><span class="lbl">基础代谢守护</span><b class="num">10<small style="font-size:15px;color:#999">/12 稳定</small></b><small>下降&gt;5% 预警 2 人</small></div>
+        <div class="kpi"><span class="lbl">腰臀比回标准</span><b class="num">3<small style="font-size:15px;color:#999"> 人</small></b><small>女性 &lt; 0.85</small></div>
+        <div class="kpi"><span class="lbl">平台期识别</span><b class="num" style="color:var(--amber)">2<small style="font-size:15px;color:#999"> 人</small></b><small>连续 5 天横盘</small></div>
+      </div>
+      <div class="card">
+        <div class="sect-title">个体风险与建议动作（点提醒即触达本人与其老师）</div>
+        <table><thead><tr><th>用户</th><th>风险类型</th><th>数据依据</th><th>建议动作</th><th></th></tr></thead><tbody>
+          <tr><td>吴女士</td><td><span class="badge bad">连续 2 天缺卡</span></td><td class="muted">06-11 起无记录</td><td>老师私聊关怀 + 群内点名鼓励</td><td><button class="btn sm green" onclick="quickRemind('吴女士')">提醒</button></td></tr>
+          <tr><td>赵女士</td><td><span class="badge warn">肌肉流失偏高</span></td><td class="muted">肌肉 −0.6kg / 脂肪 −0.4kg</td><td>提醒补足"1 份蛋白"，老师跟进餐单</td><td><button class="btn sm green" onclick="quickRemind('赵女士')">提醒</button></td></tr>
+          <tr><td>褚女士</td><td><span class="badge warn">平台期（5 天横盘）</span></td><td class="muted">68.5→68.3→68.4…</td><td>按平台期 SOP 安抚（正常节奏）+ 加蛋白与粗粮</td><td><button class="btn sm green" onclick="quickRemind('褚女士')">提醒</button></td></tr>
+          <tr><td>孙女士</td><td><span class="badge warn">代谢下降 6%</span></td><td class="muted">1364→1282 kcal</td><td>排查是否吃太少——不鼓励节食，回到 211</td><td><button class="btn sm green" onclick="quickRemind('孙女士')">提醒</button></td></tr>
+          <tr><td>冯女士</td><td><span class="badge warn">体重单日 +1.2kg</span></td><td class="muted">经期/水分常见</td><td>老师关怀确认，无需焦虑</td><td><button class="btn sm green" onclick="quickRemind('冯女士')">提醒</button></td></tr>
+        </tbody></table>
+        <p class="muted" style="font-size:12px;margin-top:10px">分析口径：内部运营参考（秤端数据换算），不向用户输出医疗结论；缺卡用户的<b>服务老师会同步收到系统提醒</b>（服务端横幅+通知）。</p>
       </div>
     </section>
 
@@ -474,6 +530,15 @@ function doSend(u,type){
 function renderLogs(){$('lBody').innerHTML=LOGS.map(l=>`<tr><td class="muted">${l.t}</td><td>${l.u}</td><td>${l.k}</td>
  <td>${l.s==='已接受'?'<span class="badge ok">已接受</span>':l.s.includes('送达')?'<span class="badge ok">'+l.s+'</span>':'<span class="badge warn">'+l.s+'</span>'}</td></tr>`).join('')}
 
+/* 营期管理 */
+const CAMPS=[{n:'21 天轻体伙伴营 · 第 6 期',p:'06-08 → 06-28',m:12,s:'进行中'},{n:'21 天轻体伙伴营 · 第 5 期',p:'05-12 → 06-01',m:15,s:'已结营'}];
+function renderCamps(){$('campBody').innerHTML=CAMPS.map((c,i)=>`<tr><td><b>${c.n}</b></td><td class="muted">${c.p}</td><td class="num">${c.m} 人</td>
+ <td>${c.s==='进行中'?'<span class="badge ok">进行中</span>':'<span class="badge off">已结营</span>'}</td>
+ <td>${c.s==='进行中'?'<button class="btn sm green" onclick="nav(\'campDetail\')">数据监控</button>':'<button class="btn sm line" onclick="toast(\'结营报告（演示）\')">结营报告</button>'}</td></tr>`).join('')}
+function createCamp(){const n=$('campName').value.trim()||'未命名打卡营';
+ CAMPS.unshift({n,p:'06-15 → 07-05',m:12,s:'进行中'});renderCamps();$('campName').value='';
+ toast(`「${n}」已创建 · 已向圈选用户发送弹窗邀请，老师同步收到名单`)}
+
 /* 共享关系 */
 const SHARES=[{o:'李女士',v:'张老师',src:'用户邀请',t:'06-08'},{o:'李女士',v:'陈顾问',src:'公司指派',t:'06-09'},{o:'王女士',v:'张老师',src:'用户邀请',t:'06-08'},{o:'演示用户（你）',v:'张老师',src:'用户邀请',t:'06-08'}];
 function renderShares(){$('sBody').innerHTML=SHARES.map((s,i)=>`<tr><td>${s.o}</td><td>${s.v}</td><td>${s.src}</td><td class="muted">${s.t}</td>
@@ -492,7 +557,7 @@ function exportCSV(kind){hydrate();
 
 /* 启动 */
 $('dashDate').textContent=new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'});
-renderCheckin();renderDaily();renderUsers();renderAlerts();renderRemind();renderLogs();renderShares();
+renderCheckin();renderDaily();renderUsers();renderAlerts();renderRemind();renderLogs();renderShares();renderCamps();
 </script>
 </body>
 </html>
