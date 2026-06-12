@@ -243,7 +243,8 @@ tr.click:hover{background:#F4F8F4}
           <div class="rrow"><span>午餐 ≈480 kcal</span><b class="muted" style="font-weight:400">鸡胸肉、西兰花、番茄、杂粮饭 · 211 齐了 ✓</b></div>
           <div class="rrow"><span>晚餐 ≈390 kcal</span><b class="muted" style="font-weight:400">清蒸鱼、菠菜、红薯 · 211 齐了 ✓</b></div>
           <div class="rrow"><span>饮水 / 排便</span><b>6 杯 1500ml / 1 次 顺畅</b></div>
-          <p class="muted" style="font-size:12px;margin-top:8px">餐食照片点击查看（演示为占位）；当日小结与用户端所见一致。</p></div>
+          <div class="rrow"><span>餐食原图</span><b><span class="back" onclick="toast('查看原图（演示）· 正式版为短时效签名 URL')">逐张查看</span>　<span class="back" onclick="toast('已下载今日 3 张原图（演示）· 已写入下载审计日志')">下载今日图片</span></b></div>
+          <p class="muted" style="font-size:12px;margin-top:8px">每张餐食图可查看原图与下载；所有下载写入审计日志（谁·下载了谁的·何时）。当日小结与用户端所见一致。</p></div>
       </div>
       <div class="dt" id="t-survey" style="display:none">
         <div class="card"><div class="sect-title">健康调研表（已完成 · 06-10）</div>
@@ -285,6 +286,7 @@ tr.click:hover{background:#F4F8F4}
             <button class="btn sm green" onclick="sendTo(currentUser,'camp')">发送新营邀请</button>
             <button class="btn sm green" onclick="sendTo(currentUser,'survey')">提醒填写调研</button>
             <button class="btn sm line" onclick="exportCSV('user1')">导出 TA 的记录 CSV</button>
+            <button class="btn sm line" onclick="toast('已创建异步导出任务（演示）：打包 TA 全部餐食图为 ZIP · 完成后生成 24 小时有效下载链接 · 已写审计')">导出 TA 的餐食图 ZIP</button>
           </div></div>
       </div>
     </section>
