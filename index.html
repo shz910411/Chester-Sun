@@ -559,7 +559,7 @@ input[type=number],input[type=text]{border-radius:0;border:0;border-bottom:1px s
     <div class="h-sub">所有维度一页看全，可回翻每一天的留档记录。</div>
     <div class="row" style="margin-bottom:10px">
       <span class="linklike" onclick="sumNav(-1)">‹ 前一天</span>
-      <span class="eyebrow" id="sumDayLabel">今天</span>
+      <span class="eyebrow" id="sumDayLabel" onclick="openCalendar()" style="cursor:pointer">今天</span>
       <span class="linklike" onclick="sumNav(1)">后一天 ›</span>
     </div>
     <div class="cal" id="sumCal" style="margin-bottom:14px"></div>
@@ -974,8 +974,8 @@ const S = JSON.parse(localStorage.getItem('msm5') || 'null') || {
   meals:{breakfast:null,lunch:null,dinner:null,snack:null},
   water:0,waterCup:250,bowel:0,bowelStatus:'',weight:null,weightSource:null,notes:[],surveyDone:false,
   notices:[
-    {id:1,type:'camp',title:'新一期「21 天轻体伙伴营」要开营啦',body:'你上一期的记录我们都帮你留着。张老师邀请你这一期继续一起——接受后，老师就能接着陪伴你的记录。',done:false},
-    {id:2,type:'survey',title:'完成健康调研，服务更贴心',body:'花 3 分钟填一份健康调研表（涉及健康信息，在你的单独授权范围内），老师才能按你的身体情况给出更合适的陪伴。',done:false}
+    {id:1,type:'camp',title:'新一期「21 天轻体伙伴营」要开营啦',body:'你上一期的记录我们都帮你留着。张老师邀请你这一期继续一起——接受后，老师就能接着陪伴你的记录。',done:false,target:'home'},
+    {id:2,type:'survey',title:'完成健康调研，服务更贴心',body:'花 3 分钟填一份健康调研表（涉及健康信息，在你的单独授权范围内），老师才能按你的身体情况给出更合适的陪伴。',done:false,target:'survey'}
   ],
   shares:[{n:'张老师（服务老师）',d:'我邀请 · 06-08 建立',e:'张'},{n:'陈顾问（营养支持）',d:'公司安排 · 06-09 建立',e:'陈'}]
 };
@@ -983,8 +983,8 @@ S.meals=S.meals||{breakfast:null,lunch:null,dinner:null,snack:null};
 S.water=S.water||0;S.waterCup=S.waterCup||250;S.bowel=S.bowel||0;S.bowelStatus=S.bowelStatus||'';S.notes=S.notes||[];
 S.shares=S.shares||[{n:'张老师（服务老师）',d:'我邀请 · 06-08 建立',e:'张'},{n:'陈顾问（营养支持）',d:'公司安排 · 06-09 建立',e:'陈'}];
 if(!S.notices)S.notices=[
-  {id:1,type:'camp',title:'新一期「21 天轻体伙伴营」要开营啦',body:'你上一期的记录我们都帮你留着。张老师邀请你这一期继续一起——接受后，老师就能接着陪伴你的记录。',done:false},
-  {id:2,type:'survey',title:'完成健康调研，服务更贴心',body:'花 3 分钟填一份健康调研表（涉及健康信息，在你的单独授权范围内），老师才能按你的身体情况给出更合适的陪伴。',done:false}
+  {id:1,type:'camp',title:'新一期「21 天轻体伙伴营」要开营啦',body:'你上一期的记录我们都帮你留着。张老师邀请你这一期继续一起——接受后，老师就能接着陪伴你的记录。',done:false,target:'home'},
+  {id:2,type:'survey',title:'完成健康调研，服务更贴心',body:'花 3 分钟填一份健康调研表（涉及健康信息，在你的单独授权范围内），老师才能按你的身体情况给出更合适的陪伴。',done:false,target:'survey'}
 ];
 if(S.surveyDone===undefined)S.surveyDone=false;
 const save=()=>localStorage.setItem('msm5',JSON.stringify(S));
@@ -1009,7 +1009,7 @@ function go(id){
   tb.querySelectorAll('div[data-t]').forEach(d=>d.classList.toggle('on',d.dataset.t===id));
   if(id==='home')renderHome();
   if(id==='share')renderShares();
-  if(id==='summary'){sumIdx=13;renderSummary();}
+  if(id==='summary'){selDate=new Date();renderSummary();}
   if(id==='compare')renderCompare();
   if(id==='svcDetail'){renderNotes();renderSvcCal();}
   if(id==='svcDay')renderSvcDay();
@@ -1066,9 +1066,11 @@ function renderHome(){
 function showNotice(n){
   if(!n)return;
   document.getElementById('modalMask').style.display='flex';
+  const tgt=n.target||(n.type==='survey'?'survey':'home');
+  const lbl={survey:'去填写（3 分钟）',weighing:'去称重',camera:'去拍照打卡',summary:'查看当日汇总',stage:'去做阶段记录',stageCompare:'查看阶段对比',share:'管理数据共享',home:'去看看'}[tgt]||'去处理';
   const btns=n.type==='camp'
     ?`<button class="btn" onclick="acceptNotice(${n.id})">接受加入</button><button class="btn ghost" style="margin-top:10px" onclick="closeModal()">暂不，先看看</button>`
-    :`<button class="btn" onclick="closeModal();go('survey')">去填写（3 分钟）</button><button class="btn ghost" style="margin-top:10px" onclick="closeModal()">稍后再说</button>`;
+    :`<button class="btn" onclick="const _n=S.notices.find(x=>x.id===${n.id});if(_n){_n.done=true;save()};closeModal();go('${tgt}')${tgt==='weighing'?';startBle()':''}">${lbl}</button><button class="btn ghost" style="margin-top:10px" onclick="closeModal()">稍后再说</button>`;
   document.getElementById('modalBody').innerHTML=`
     <b style="font-size:17px">${n.title}</b>
     <p style="font-size:13px;line-height:1.8;margin:10px 0 14px;color:var(--forest)">${n.body}</p>
@@ -1285,25 +1287,50 @@ function calcWHR(){
   st.style.display='inline';st.style.marginLeft='6px';
 }
 
-/* ---------- 全维度汇总 + 自动小结（支持回翻 14 天留档） ---------- */
-let sumIdx=13;
-const SUM_STATES=['full','full','part','full','full','none','full','full','part','full','full','full','none','today'];
-function sumNav(d){sumIdx=Math.max(0,Math.min(13,sumIdx+d));renderSummary()}
-function renderSumCal(){
-  const c=document.getElementById('sumCal');if(!c)return;
-  c.innerHTML=SUM_STATES.map((s,i)=>{
-    const day=new Date(Date.now()-(13-i)*86400000).getDate();
-    const cls=i===13?'full':(s==='full'?'full':s==='part'?'part':'');
-    return `<i class="${cls}" style="cursor:pointer;${i===sumIdx?'outline:2px solid var(--forest);outline-offset:1px;':''}" onclick="sumIdx=${i};renderSummary()">${day}</i>`}).join('');
-}
+/* ---------- 全维度汇总 + 自动小结（任意日期留档回翻 + 完整月历） ---------- */
+let selDate=new Date();let calY,calM;
+const sameDay=(a,b)=>a.toDateString()===b.toDateString();
+const fmtMD=d=>`${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function dayState(d){const t=new Date();if(sameDay(d,t))return 'today';if(d>t)return null;
+  const diff=Math.floor((t.setHours(0,0,0,0)-new Date(d).setHours(0,0,0,0))/86400000);
+  if(diff>35)return 'none';
+  const seed=(d.getDate()*7+(d.getMonth()+1)*3)%10;return seed<6?'full':seed<8?'part':'none';}
+function sumNav(dir){const nd=new Date(selDate.getTime()+dir*86400000);if(nd>new Date())return;selDate=nd;renderSummary()}
+function renderSumStrip(){
+  const c=document.getElementById('sumCal');if(!c)return;let html='';
+  for(let i=13;i>=0;i--){const d=new Date(Date.now()-i*86400000);const st=dayState(d);
+    const cls=st==='today'||st==='full'?'full':st==='part'?'part':'';
+    html+=`<i class="${cls}" style="cursor:pointer;${sameDay(d,selDate)?'outline:2px solid var(--forest);outline-offset:1px;':''}" onclick="selDate=new Date(${d.getTime()});renderSummary()">${d.getDate()}</i>`}
+  c.innerHTML=html;}
+/* 完整月历弹层：上下翻月，任意日期调档 */
+function openCalendar(){calY=selDate.getFullYear();calM=selDate.getMonth();renderCalModal()}
+function calMonNav(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}renderCalModal()}
+function renderCalModal(){
+  const first=new Date(calY,calM,1);const days=new Date(calY,calM+1,0).getDate();const pad=first.getDay();
+  let grid='';
+  for(let i=0;i<pad;i++)grid+='<i style="visibility:hidden"></i>';
+  for(let dd=1;dd<=days;dd++){const d=new Date(calY,calM,dd);const st=dayState(d);
+    const dis=st===null;const cls=st==='today'||st==='full'?'full':st==='part'?'part':'';
+    grid+=`<i class="${cls}" style="${dis?'opacity:.25;':'cursor:pointer;'}${sameDay(d,selDate)?'outline:2px solid var(--forest);outline-offset:1px;':''}" ${dis?'':`onclick="selDate=new Date(${d.getTime()});closeModal();renderSummary()"`}>${dd}</i>`}
+  document.getElementById('modalMask').style.display='flex';
+  document.getElementById('modalBody').innerHTML=`
+    <div class="row"><span class="linklike" onclick="calMonNav(-1)">‹ 上月</span>
+      <b style="font-family:var(--serif);font-size:17px;letter-spacing:.1em">${calY} 年 ${calM+1} 月</b>
+      <span class="linklike" onclick="calMonNav(1)">下月 ›</span></div>
+    <div class="cal" style="margin-top:14px;grid-template-columns:repeat(7,1fr)">
+      ${['日','一','二','三','四','五','六'].map(w=>`<i style="background:transparent;color:#A9A698;font-size:10px">${w}</i>`).join('')}
+      ${grid}</div>
+    <p class="muted" style="font-size:10.5px;margin-top:12px;text-align:center">绿＝完整 · 浅绿＝部分 · 灰＝未记录 · 点任意一天调取留档</p>
+    <button class="btn ghost" style="margin-top:12px" onclick="closeModal()">关闭</button>`;}
 function renderSummary(){
-  renderSumCal();
-  const d=new Date(Date.now()-(13-sumIdx)*86400000);
-  const ds=`${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  document.getElementById('sumDayLabel').textContent=sumIdx===13?'今天 '+ds:ds+'（留档）';
-  const tc=document.getElementById('teacherCard');if(tc)tc.style.display=sumIdx===13?'block':'none';
-  if(sumIdx!==13){ /* 历史留档（演示数据） */
-    const st=SUM_STATES[sumIdx];const w=(60.0-sumIdx*0.12).toFixed(1);
+  renderSumStrip();
+  const ds=fmtMD(selDate);const isToday=sameDay(selDate,new Date());
+  document.getElementById('sumDayLabel').innerHTML=(isToday?'今天 '+ds:ds+'（留档）')+' <u style="text-underline-offset:3px">📅</u>';
+  const tc=document.getElementById('teacherCard');if(tc)tc.style.display=isToday?'block':'none';
+  if(!isToday){
+    const st=dayState(selDate);
+    const daysAgo=Math.round((new Date().setHours(0,0,0,0)-new Date(selDate).setHours(0,0,0,0))/86400000);
+    const w=(58.4+daysAgo*0.11).toFixed(1);
     const rows= st==='none'?[['当日','没有记录']]:[
       ['晨重',`${w} kg`],['体脂率',st==='full'?'31.9%（秤读取）':'—'],
       ['摄入（估算）',st==='full'?'≈ 1,180 kcal · 3 餐':'≈ 210 kcal · 1 餐'],
@@ -1311,10 +1338,10 @@ function renderSummary(){
       ['记录状态',st==='full'?'完整 ✓':'部分'],
     ];
     document.getElementById('reportRows').innerHTML=rows.map(r=>`<div class="report-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
-    document.getElementById('aiBrief').textContent=st==='none'?'这一天没有记录。':`${ds} 晨重 ${w}kg；${st==='full'?'三餐齐、饮水达标——这一天完成得很完整。':'只记录了早餐和体重。'}（历史留档 · 演示数据）`;
+    document.getElementById('aiBrief').textContent=st==='none'?'这一天没有记录。':`${ds} 晨重 ${w}kg；${st==='full'?'三餐齐、饮水达标——这一天完成得很完整。':'只记录了部分内容。'}（历史留档 · 演示数据）`;
     document.getElementById('sumDate').textContent=ds;
-    document.getElementById('sKcal').textContent=st==='full'?'1180':'210';
-    document.getElementById('sWeight').textContent=w;
+    document.getElementById('sKcal').textContent=st==='full'?'1180':st==='part'?'210':'—';
+    document.getElementById('sWeight').textContent=st==='none'?'—':w;
     return;
   }
   document.getElementById('sumDate').textContent=new Date().toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'});

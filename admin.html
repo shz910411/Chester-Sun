@@ -560,9 +560,9 @@ function doSend(u,type){
  LOGS.unshift({t:stamp(),u:u.n,k:kind,s:u.real?'已送达·待打开':'待确认'});
  if(u.real){try{let r=realState();if(!r)r={};if(!r.notices)r.notices=[];
   const id=Date.now();
-  const tpl=type==='camp'?{id,type:'camp',title:'新一期「21 天轻体伙伴营」邀请（来自公司后台）',body:'公司刚刚通过后台向你发出了新一期邀请——这条提醒就是从后台「提醒中心」真实发出的。',done:false}
-   :type==='survey'?{id,type:'survey',title:'健康调研提醒（来自公司后台）',body:'公司提醒你完成健康调研表，3 分钟，入你的健康档案。',done:false}
-   :{id,type:'survey',title:'今日打卡提醒（来自公司后台）',body:'今天还没完成记录——称一下、拍一拍，30 秒搞定。',done:false};
+  const tpl=type==='camp'?{id,type:'camp',title:'新一期「21 天轻体伙伴营」邀请（来自公司后台）',body:'公司刚刚通过后台向你发出了新一期邀请——这条提醒就是从后台「提醒中心」真实发出的。',done:false,target:'home'}
+   :type==='survey'?{id,type:'survey',title:'健康调研提醒（来自公司后台）',body:'公司提醒你完成健康调研表，3 分钟，入你的健康档案。',done:false,target:'survey'}
+   :{id,type:'remind',title:'今日打卡提醒（来自公司后台）',body:'今天还没完成记录——称一下、拍一拍，30 秒搞定。',done:false,target:'weighing'};
   r.notices.unshift(tpl);localStorage.setItem('msm5',JSON.stringify(r));}catch(e){}}}
 function renderLogs(){$('lBody').innerHTML=LOGS.map(l=>`<tr><td class="muted">${l.t}</td><td>${l.u}</td><td>${l.k}</td>
  <td>${l.s==='已接受'?'<span class="badge ok">已接受</span>':l.s.includes('送达')?'<span class="badge ok">'+l.s+'</span>':'<span class="badge warn">'+l.s+'</span>'}</td></tr>`).join('')}
