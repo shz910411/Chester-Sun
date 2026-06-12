@@ -555,8 +555,14 @@ input[type=number],input[type=text]{border-radius:0;border:0;border-bottom:1px s
   <!-- S8 汇总分享 -->
   <section class="screen" id="scr-summary">
     <div class="back" onclick="go('home')">‹</div>
-    <div class="h-title" style="margin-top:30px">今日汇总</div>
-    <div class="h-sub">所有维度一页看全，再生成卡片转发到你的轻体伙伴群。</div>
+    <div class="h-title" style="margin-top:30px">每日汇总</div>
+    <div class="h-sub">所有维度一页看全，可回翻每一天的留档记录。</div>
+    <div class="row" style="margin-bottom:10px">
+      <span class="linklike" onclick="sumNav(-1)">‹ 前一天</span>
+      <span class="eyebrow" id="sumDayLabel">今天</span>
+      <span class="linklike" onclick="sumNav(1)">后一天 ›</span>
+    </div>
+    <div class="cal" id="sumCal" style="margin-bottom:14px"></div>
     <div class="card" style="padding:14px 18px">
       <div class="row" style="margin-bottom:4px"><b>今日全维度记录</b><span class="muted" id="sumDate"></span></div>
       <div id="reportRows"></div>
@@ -565,7 +571,7 @@ input[type=number],input[type=text]{border-radius:0;border:0;border-bottom:1px s
       <span class="eyebrow">今日小结</span><span class="muted" style="font-size:11px">　自动生成 · 演示为规则版</span>
       <p id="aiBrief" style="font-size:13px;line-height:1.95;margin-top:10px"></p>
     </div>
-    <div class="card">
+    <div class="card" id="teacherCard">
       <div class="row"><span class="eyebrow">张老师的话</span><span class="muted" style="font-size:11px">今天 · 来自你的服务老师</span></div>
       <p style="font-size:14px;line-height:1.95;margin-top:10px;font-family:var(--serif)">「今天三餐很标准，菜量也到位了——这个节奏保持住，明天继续。」</p>
     </div>
@@ -1003,7 +1009,7 @@ function go(id){
   tb.querySelectorAll('div[data-t]').forEach(d=>d.classList.toggle('on',d.dataset.t===id));
   if(id==='home')renderHome();
   if(id==='share')renderShares();
-  if(id==='summary')renderSummary();
+  if(id==='summary'){sumIdx=13;renderSummary();}
   if(id==='compare')renderCompare();
   if(id==='svcDetail'){renderNotes();renderSvcCal();}
   if(id==='svcDay')renderSvcDay();
@@ -1279,8 +1285,38 @@ function calcWHR(){
   st.style.display='inline';st.style.marginLeft='6px';
 }
 
-/* ---------- 全维度汇总 + 自动小结 ---------- */
+/* ---------- 全维度汇总 + 自动小结（支持回翻 14 天留档） ---------- */
+let sumIdx=13;
+const SUM_STATES=['full','full','part','full','full','none','full','full','part','full','full','full','none','today'];
+function sumNav(d){sumIdx=Math.max(0,Math.min(13,sumIdx+d));renderSummary()}
+function renderSumCal(){
+  const c=document.getElementById('sumCal');if(!c)return;
+  c.innerHTML=SUM_STATES.map((s,i)=>{
+    const day=new Date(Date.now()-(13-i)*86400000).getDate();
+    const cls=i===13?'full':(s==='full'?'full':s==='part'?'part':'');
+    return `<i class="${cls}" style="cursor:pointer;${i===sumIdx?'outline:2px solid var(--forest);outline-offset:1px;':''}" onclick="sumIdx=${i};renderSummary()">${day}</i>`}).join('');
+}
 function renderSummary(){
+  renderSumCal();
+  const d=new Date(Date.now()-(13-sumIdx)*86400000);
+  const ds=`${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('sumDayLabel').textContent=sumIdx===13?'今天 '+ds:ds+'（留档）';
+  const tc=document.getElementById('teacherCard');if(tc)tc.style.display=sumIdx===13?'block':'none';
+  if(sumIdx!==13){ /* 历史留档（演示数据） */
+    const st=SUM_STATES[sumIdx];const w=(60.0-sumIdx*0.12).toFixed(1);
+    const rows= st==='none'?[['当日','没有记录']]:[
+      ['晨重',`${w} kg`],['体脂率',st==='full'?'31.9%（秤读取）':'—'],
+      ['摄入（估算）',st==='full'?'≈ 1,180 kcal · 3 餐':'≈ 210 kcal · 1 餐'],
+      ['饮水',st==='full'?'6 杯 · 1500 ml':'3 杯 · 750 ml'],['排便',st==='full'?'1 次 · 顺畅':'—'],
+      ['记录状态',st==='full'?'完整 ✓':'部分'],
+    ];
+    document.getElementById('reportRows').innerHTML=rows.map(r=>`<div class="report-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+    document.getElementById('aiBrief').textContent=st==='none'?'这一天没有记录。':`${ds} 晨重 ${w}kg；${st==='full'?'三餐齐、饮水达标——这一天完成得很完整。':'只记录了早餐和体重。'}（历史留档 · 演示数据）`;
+    document.getElementById('sumDate').textContent=ds;
+    document.getElementById('sKcal').textContent=st==='full'?'1180':'210';
+    document.getElementById('sWeight').textContent=w;
+    return;
+  }
   document.getElementById('sumDate').textContent=new Date().toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'});
   const k=totalKcal();const mealsDone=Object.values(S.meals).filter(Boolean).length;
   const rows=[

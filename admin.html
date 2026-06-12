@@ -293,14 +293,8 @@ tr.click:hover{background:#F4F8F4}
         <div class="card"><div class="sect-title">打卡日历（近 14 天）</div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px" id="dCal"></div>
           <p class="muted" style="font-size:12px;margin-top:8px">绿＝完整 · 浅绿＝部分 · 灰＝未记录</p></div>
-        <div class="card"><div class="sect-title">今日打卡内容</div>
-          <div class="rrow"><span>晨重</span><b>58.4 kg（蓝牙体脂秤 07:42）</b></div>
-          <div class="rrow"><span>早餐 ≈340 kcal</span><b class="muted" style="font-weight:400">水煮蛋、全麦面包、小米粥、凉拌黄瓜 · 211：菜 1/2</b></div>
-          <div class="rrow"><span>午餐 ≈480 kcal</span><b class="muted" style="font-weight:400">鸡胸肉、西兰花、番茄、杂粮饭 · 211 齐了 ✓</b></div>
-          <div class="rrow"><span>晚餐 ≈390 kcal</span><b class="muted" style="font-weight:400">清蒸鱼、菠菜、红薯 · 211 齐了 ✓</b></div>
-          <div class="rrow"><span>饮水 / 排便</span><b>6 杯 1500ml / 1 次 顺畅</b></div>
-          <div class="rrow"><span>餐食原图</span><b><span class="back" onclick="toast('查看原图（演示）· 正式版为短时效签名 URL')">逐张查看</span>　<span class="back" onclick="toast('已下载今日 3 张原图（演示）· 已写入下载审计日志')">下载今日图片</span></b></div>
-          <p class="muted" style="font-size:12px;margin-top:8px">每张餐食图可查看原图与下载；所有下载写入审计日志（谁·下载了谁的·何时）。当日小结与用户端所见一致。</p></div>
+        <div class="card"><div class="sect-title" id="dayTitle">当日打卡内容 · 06-12</div><div id="dayBox"></div>
+          <p class="muted" style="font-size:12px;margin-top:8px">点上方日历任意一格调取那一天的留档记录；点任一餐直接在线看原图（导出仅用于统一分析）。</p></div>
       </div>
       <div class="dt" id="t-survey" style="display:none">
         <div class="card"><div class="sect-title">健康调研表（已完成 · 06-10）</div>
@@ -396,7 +390,20 @@ tr.click:hover{background:#F4F8F4}
         <div class="rrow"><span>三餐全达标</span><b class="num">33%</b></div>
         <div class="rrow"><span>最常缺的一项</span><b>第 2 份蔬菜（61% 的未达标餐缺它）</b></div>
         <div class="rrow"><span>平均每餐摄入</span><b class="num">≈ 405 kcal</b></div></div>
-      <p class="muted" style="font-size:12px">分析为运营参考口径；不输出个体健康结论，不作老师计酬依据。</p>
+      <div class="card"><div class="sect-title">减重质量指数 FQI（脂肪占总减重比，秤端体脂换算）</div>
+        <div class="rrow"><span><span class="badge ok">优 ≥70%</span> 减的主要是脂肪</span><b class="num">6 人</b></div>
+        <div class="rrow"><span><span class="badge warn">良 40–70%</span> 水分占比偏高</span><b class="num">4 人</b></div>
+        <div class="rrow"><span><span class="badge bad">预警 &lt;40% 或肌肉流失&gt;30%</span></span><b>赵女士、孙女士 → 推「补足 1 份蛋白」提醒</b></div></div>
+      <div class="card"><div class="sect-title">依从 × 效果 四象限（打卡完成率 × FQI）</div>
+        <table><thead><tr><th></th><th>效果好</th><th>效果慢</th></tr></thead><tbody>
+        <tr><td><b>依从高</b></td><td><span class="badge ok">标杆 5 人</span> → 群内示范、结营案例（需本人书面授权）</td><td><span class="badge warn">排查 2 人</span> → 查经期/平台期/代谢，转老师一对一</td></tr>
+        <tr><td><b>依从低</b></td><td><span class="badge warn">侥幸 1 人</span> → 先补打卡习惯，防反弹</td><td><span class="badge bad">流失风险 2 人</span> → 48h 内老师电话/私聊介入</td></tr>
+        </tbody></table></div>
+      <div class="card"><div class="sect-title">饮食结构画像（AI 解析条目聚合）</div>
+        <div class="rrow"><span>最常缺的 211 要素</span><b>第 2 份蔬菜（61% 未达标餐缺它）→ 本周群课主题</b></div>
+        <div class="rrow"><span>晚餐过重（&gt;40% 日摄入）</span><b class="num">3 人 → 推「晚餐轻一点」模板</b></div>
+        <div class="rrow"><span>油炸/甜食出现频次</span><b class="num">周均 1.8 次/人 · 趋势 ↓</b></div></div>
+      <p class="muted" style="font-size:12px">分析为运营参考口径；不输出个体健康结论，不作老师计酬依据。完整模型库（含公式与阈值）见规则库文档第九节。</p>
     </section>
 
     <!-- ⑨ 共享与记录 -->
@@ -408,6 +415,18 @@ tr.click:hover{background:#F4F8F4}
         <table><thead><tr><th>时间</th><th>用户</th><th>类型</th><th>状态</th></tr></thead><tbody id="lBody"></tbody></table></div>
     </section>
   </main>
+</div>
+<div id="imgModal" style="display:none;position:fixed;inset:0;background:rgba(20,20,18,.55);z-index:97;align-items:center;justify-content:center" onclick="this.style.display='none'">
+  <div style="background:#fff;border-radius:12px;max-width:540px;width:92vw;padding:20px" onclick="event.stopPropagation()">
+    <div class="sect-title" id="imTitle">餐食</div>
+    <div style="aspect-ratio:4/3;background:#F1EFE5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;font-size:14px;text-align:center">学员上传的餐食原图<br>（演示占位 · 正式版此处即原图，在线直接查看）</div>
+    <p style="font-size:14px;margin-top:12px;font-weight:600" id="imDesc"></p>
+    <p class="muted" style="font-size:13px;margin-top:4px" id="imAI"></p>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn sm green" onclick="toast('已下载这张原图（演示）· 写入下载审计')">下载这张</button>
+      <button class="btn sm line" onclick="document.getElementById('imgModal').style.display='none'">关闭</button>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -451,7 +470,7 @@ function renderCheckin(){hydrate();const onlyMiss=$('ciMiss').classList.contains
   tb.innerHTML+=`<tr><td><a class="back" onclick="openDetail('${u.n}')">${u.n}</a>${u.real?' <span class="badge ok">本机</span>':''}</td>
    <td>${u.adv}</td>
    <td>${u.w?`<span class="badge ok num">${u.w} kg</span>`:'<span class="badge off">未称</span>'}</td>
-   ${u.meals.map(k=>k?`<td><span class="badge ok num" title="点击看内容" style="cursor:pointer" onclick="toast('餐食内容与 AI 解析（演示）：≈${k} kcal')">≈${k}</span></td>`:'<td><span class="badge off">—</span></td>').join('')}
+   ${u.meals.map((k,mi)=>k?`<td><span class="badge ok num" title="点击看图与解析" style="cursor:pointer" onclick="openMealImg('${u.n}',${mi},${k})">≈${k}</span></td>`:'<td><span class="badge off">—</span></td>').join('')}
    <td class="hide-m num">${u.water||0} 杯</td><td class="hide-m num">${u.bowel||0} 次</td>
    <td><div class="bar" style="max-width:90px"><i style="width:${pct}%"></i></div></td>
    <td>${full?'<span class="badge ok">完整</span>':`<button class="btn sm green" onclick="quickRemind('${u.n}')">提醒</button>`}</td></tr>`});
@@ -483,8 +502,26 @@ function openDetail(n){const u=USERS.find(x=>x.n===n);if(!u)return;currentUser=u
  $('dAdvisor').value=u.adv;$('dAdvisorLog').textContent=`归属日志：06-08 系统分配 → ${u.adv}`;
  const data=[60,59.8,59.5,59.2,59,58.8,u.w||58.6];const mn=Math.min(...data)-.3,mx=Math.max(...data);
  $('dSpark').innerHTML=data.map((v,i)=>`<i class="${i===6?'hl':''}" style="height:${14+((v-mn)/(mx-mn))*86}%" title="${v}kg"></i>`).join('');
- const states=['full','full','part','full','full','none','full','full','part','full','full','full','none','full'];
- $('dCal').innerHTML=states.map((s,i)=>`<div style="height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;color:${s==='full'?'#fff':'#888'};background:${s==='full'?'#0D8456':s==='part'?'#D8E6CB':'#EEEEEA'}">${new Date(Date.now()-(13-i)*86400000).getDate()}</div>`).join('')}
+ $('dCal').innerHTML=ADM_STATES.map((s,i)=>`<div style="height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;color:${s==='full'?'#fff':'#888'};background:${s==='full'?'#0D8456':s==='part'?'#D8E6CB':'#EEEEEA'}" onclick="renderDay(${i})" title="点击调取当日留档">${new Date(Date.now()-(13-i)*86400000).getDate()}</div>`).join('');
+ renderDay(13)}
+const ADM_STATES=['full','full','part','full','full','none','full','full','part','full','full','full','none','full'];
+const ADM_MEALS=[['早餐',340,'水煮蛋、全麦面包、小米粥、凉拌黄瓜','211：菜 1/2 ─ 基本符合'],['午餐',480,'鸡胸肉、西兰花、番茄、杂粮饭','211 齐了 ✓'],['晚餐',390,'清蒸鱼、菠菜、红薯','211 齐了 ✓']];
+function renderDay(i){
+ const d=new Date(Date.now()-(13-i)*86400000);const ds=`06-${String(d.getDate()).padStart(2,'0')}`;
+ $('dayTitle').textContent=`当日打卡内容 · ${ds}（留档）`;
+ const st=ADM_STATES[i];const box=$('dayBox');
+ if(st==='none'){box.innerHTML='<p class="muted" style="padding:16px 0">这一天没有记录。</p>';return}
+ const w=(60.0-i*0.12).toFixed(1);const meals=st==='full'?ADM_MEALS:[ADM_MEALS[0]];
+ box.innerHTML=`<div class="rrow"><span>晨重</span><b>${w} kg（蓝牙体脂秤）</b></div>`+
+  meals.map((m,mi)=>`<div class="rrow" style="cursor:pointer" onclick="openMealImg('${(currentUser&&currentUser.n)||'李女士'}',${mi},${m[1]},'${ds}')"><span>${m[0]} ≈${m[1]} kcal <span class="badge ok" style="margin-left:6px">点开看图</span></span><b class="muted" style="font-weight:400">${m[2]} · ${m[3]}</b></div>`).join('')+
+  `<div class="rrow"><span>饮水 / 排便</span><b>${st==='full'?'6 杯 1500ml / 1 次 顺畅':'3 杯 750ml / —'}</b></div>`;
+}
+function openMealImg(name,mi,kcal,ds){
+ const M=ADM_MEALS[mi]||ADM_MEALS[0];
+ $('imTitle').textContent=`${name} · ${ds||'06-12'} ${M[0]} · ≈${kcal} kcal（估算）`;
+ $('imDesc').textContent=M[2];$('imAI').textContent='AI 解析与 211 反馈：'+M[3];
+ $('imgModal').style.display='flex';
+}
 function changeAdvisor(){const v=$('dAdvisor').value;if(!currentUser)return;const old=currentUser.adv;currentUser.adv=v;
  $('dAdvisorLog').textContent=`归属日志：06-08 系统分配 → ${old} ｜ ${stamp()} 后台改派 → ${v}（操作人：admin · 已留痕）`;
  renderUsers();toast('已改派给 '+v+' · 日志留痕')}
