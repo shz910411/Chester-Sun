@@ -813,10 +813,12 @@ input[type=number],input[type=text]{border-radius:0;border:0;border-bottom:1px s
     <div class="h-title" style="margin-top:30px">阶段记录</div>
     <div class="h-sub">轻体前后的影像与围度，是最有说服力的见证。<b>仅你本人、公司与你授权的老师可见</b>，已在健康数据授权范围内。</div>
     <div class="card">
-      <div class="row"><span class="eyebrow">体型照 · 基线 06-11</span><span class="muted" style="font-size:10.5px">每 2 周更新一组</span></div>
+      <div class="row"><span class="eyebrow">体型照 · 本次将存为第 3 期</span><span class="muted" style="font-size:10.5px">何时记录由你定 · 建议每 2 周</span></div>
+      <p class="muted" style="font-size:11px;margin-top:6px">已有：基线 05-29 ｜ 第 2 期 06-11 <span class="linklike" onclick="go('stageCompare')">查看历史</span></p>
       <div class="photo-grid">
         <div class="photo-slot" onclick="slotDone(this,'正面照')"><span class="pl">正 面</span><span class="ps">点击拍摄 / 上传</span></div>
         <div class="photo-slot" onclick="slotDone(this,'侧面照')"><span class="pl">侧 面</span><span class="ps">点击拍摄 / 上传</span></div>
+        <div class="photo-slot" onclick="slotDone(this,'背面照')"><span class="pl">背 面</span><span class="ps">点击拍摄 / 上传</span></div>
       </div>
       <p class="muted" style="margin-top:10px;font-size:10.5px;line-height:1.7">拍摄规范：同一时间、同一背景、同一身有弹力的衣服——前后对比才准。</p>
     </div>
@@ -857,35 +859,47 @@ input[type=number],input[type=text]{border-radius:0;border:0;border-bottom:1px s
   <section class="screen" id="scr-stageCompare">
     <div class="back" onclick="go('stage')">‹</div>
     <div class="h-title" style="margin-top:30px">阶段对比</div>
-    <div class="h-sub" id="stageCmpSub">05-29 基线 ─ 06-11 当前 ｜ 14 天</div>
+    <div class="h-sub" id="stageCmpSub">选择两期，看见自己的变化。</div>
+    <div class="seg" id="stageSel" style="margin-bottom:14px">
+      <i class="on" onclick="setStage(2,this)">基线 ─ 第 2 期</i>
+      <i onclick="setStage(3,this)">基线 ─ 第 3 期（今天）</i>
+    </div>
     <div class="card">
-      <span class="eyebrow">体型照对比</span>
-      <div class="photo-grid">
-        <div class="photo-slot done" style="cursor:default"><span class="pl">基 线</span><span class="ps">05-29 · 正面</span></div>
-        <div class="photo-slot done" style="cursor:default"><span class="pl">当 前</span><span class="ps">06-11 · 正面</span></div>
+      <span class="eyebrow">体型照对比 · 三面</span>
+      <div class="photo-grid" style="margin-top:12px">
+        <div class="photo-slot done" style="cursor:default;aspect-ratio:3/4"><span class="pl">正</span><span class="ps">基线 05-29</span></div>
+        <div class="photo-slot done" style="cursor:default;aspect-ratio:3/4"><span class="pl">正</span><span class="ps" id="phF">第 2 期 06-11</span></div>
       </div>
-      <p class="muted" style="margin-top:8px;font-size:10.5px">演示为占位 · 正式版显示真实照片，点击看大图</p>
+      <div class="photo-grid">
+        <div class="photo-slot done" style="cursor:default;aspect-ratio:3/4"><span class="pl">侧</span><span class="ps">基线 05-29</span></div>
+        <div class="photo-slot done" style="cursor:default;aspect-ratio:3/4"><span class="pl">侧</span><span class="ps" id="phS">第 2 期 06-11</span></div>
+      </div>
+      <div class="photo-grid">
+        <div class="photo-slot done" style="cursor:default;aspect-ratio:3/4"><span class="pl">背</span><span class="ps">基线 05-29</span></div>
+        <div class="photo-slot done" style="cursor:default;aspect-ratio:3/4"><span class="pl">背</span><span class="ps" id="phB">第 2 期 06-11</span></div>
+      </div>
+      <p class="muted" style="margin-top:8px;font-size:10.5px">演示为占位 · 正式版显示真实照片，点击看大图；照片不参与自动分析</p>
     </div>
     <div class="card">
       <table class="cmp-table">
-        <tr><th>围度 / 参考</th><th>05-29</th><th>06-11</th><th>变化</th></tr>
-        <tbody>
-          <tr><td class="met"><b>腰围</b><i>中国式肥胖关键指标</i></td><td class="num">78.0<small>cm</small></td><td class="num today">74.0<small>cm</small></td><td class="chg">↓ 4.0</td></tr>
-          <tr><td class="met"><b>臀围</b><i>取最宽处</i></td><td class="num">96.0<small>cm</small></td><td class="num today">94.0<small>cm</small></td><td class="chg">↓ 2.0</td></tr>
-          <tr><td class="met"><b>大腿围</b><i>左右取同侧</i></td><td class="num">56.0<small>cm</small></td><td class="num today">54.5<small>cm</small></td><td class="chg">↓ 1.5</td></tr>
-          <tr><td class="met"><b>腰臀比</b><i>女性参考 &lt; 0.85</i></td><td class="num">0.81</td><td class="num today">0.79<span class="st good">标准</span></td><td class="chg">↓ 0.02</td></tr>
-        </tbody>
+        <tr><th>围度 / 参考</th><th>05-29</th><th id="cmpColHead">06-11</th><th>变化</th></tr>
+        <tbody id="stageTbl"></tbody>
       </table>
     </div>
+    <div class="card" style="border-left:2px solid var(--green);padding-left:16px">
+      <div class="row"><span class="eyebrow">AI 阶段小结</span><span class="muted" style="font-size:11px">自动生成 · 仅基于体重/围度/体成分数据</span></div>
+      <p id="aiStageBrief" style="font-size:13px;line-height:2;margin-top:10px"></p>
+      <p class="muted" style="font-size:10.5px;margin-top:8px">生活方式参考建议 · 非医疗/营养处方 ｜ 生化报告与照片不参与自动分析，由你的老师人工解读</p>
+    </div>
     <div class="card">
-      <span class="eyebrow">报告与舌诊 · 时间线</span>
+      <span class="eyebrow">报告与舌诊 · 各期留档</span>
       <div class="report-row"><span>05-29 生化指标报告</span><b><span class="linklike">查看</span></b></div>
-      <div class="report-row"><span>05-29 舌诊照</span><b><span class="linklike">对比查看</span></b></div>
       <div class="report-row"><span>06-11 舌诊照</span><b><span class="linklike">对比查看</span></b></div>
+      <div class="report-row" id="r3" style="display:none"><span>06-12 生化指标报告（第 3 期）</span><b><span class="linklike">查看</span></b></div>
     </div>
     <div class="card">
       <div class="row"><span class="eyebrow">张老师的阶段分析</span><span class="muted" style="font-size:11px">人工出具 · 非医疗诊断</span></div>
-      <p style="font-size:14px;line-height:2;margin-top:10px;font-family:var(--serif)">「腰围下降最明显，说明你最在意的腹部正在改善；腰臀比已回到标准区间。照片上腰线轮廓变化清晰——接下来保持 211 吃法，重点观察皮下脂肪率。」</p>
+      <p style="font-size:14px;line-height:2;margin-top:10px;font-family:var(--serif)">「腰围下降最明显，说明你最在意的腹部正在改善；腰臀比已回到参考区间。照片上腰线轮廓变化清晰——接下来保持 211 吃法，重点观察皮下脂肪率。」</p>
     </div>
   </section>
 
@@ -1013,6 +1027,7 @@ function go(id){
   if(id==='compare')renderCompare();
   if(id==='svcDetail'){renderNotes();renderSvcCal();}
   if(id==='svcDay')renderSvcDay();
+  if(id==='stageCompare')renderStageCmp();
   if(id==='camera'&&document.getElementById('camStage').style.display!=='none'){
     const hh=new Date().getHours();const mm=hh<10?'breakfast':hh<15?'lunch':hh<21?'dinner':'snack';
     document.querySelectorAll('#mealTypeRow i').forEach(i=>i.classList.toggle('on',i.dataset.m===mm));
@@ -1275,6 +1290,24 @@ function saveDayNote(){const inp=document.getElementById('svcDayNote');const v=i
   toast(noteVisible?'已发送 ✓ TA 会在当天汇总看到「老师的话」':'已存团队备注 ✓ 对方不可见');}
 
 /* ---------- 阶段记录 ---------- */
+/* 阶段对比：期选择与 AI 阶段小结（仅结构化数据，白名单话术） */
+const STAGE_DATA={
+ 2:{col:'06-11',rows:[['腰围','中国式肥胖关键指标','78.0','74.0','cm','↓ 4.0'],['臀围','取最宽处','96.0','94.0','cm','↓ 2.0'],['大腿围','左右取同侧','56.0','54.5','cm','↓ 1.5'],['腰臀比','女性参考 < 0.85','0.81','0.79','','↓ 0.02']],
+  brief:'这一阶段（05-29 → 06-11，14 天）：体重 −1.6kg，腰围 −4.0cm，腰臀比 0.81 → 0.79，回到参考区间内；肌肉量 +0.05kg，守得很稳——变化主要来自脂肪与围度，这是质量很高的一段进展。下一阶段建议：继续 211 餐盘，把第二份蔬菜补齐；保持晨起称重的节奏；重点观察皮下脂肪率与内脏脂肪等级的变化。'},
+ 3:{col:'06-12',rows:[['腰围','中国式肥胖关键指标','78.0','73.2','cm','↓ 4.8'],['臀围','取最宽处','96.0','93.4','cm','↓ 2.6'],['大腿围','左右取同侧','56.0','54.0','cm','↓ 2.0'],['腰臀比','女性参考 < 0.85','0.81','0.78','','↓ 0.03']],
+  brief:'这一阶段（05-29 → 06-12，15 天）：体重 −1.8kg，腰围累计 −4.8cm，三个围度全部在下降通道；腰臀比 0.78，稳稳处于参考区间内——身体的轮廓变化已经能在照片上看见了。下一阶段建议：保持现在的吃法与作息节奏，不需要更严格；每天 2000ml 饮水分多次小口；两周后再记录一期，把这条变化曲线连起来。'}};
+let curStage=2;
+function setStage(n,el){curStage=n;if(el){[...el.parentElement.children].forEach(i=>i.classList.remove('on'));el.classList.add('on')}renderStageCmp()}
+function renderStageCmp(){
+ const D=STAGE_DATA[curStage];if(!document.getElementById('stageTbl'))return;
+ document.getElementById('cmpColHead').textContent=D.col;
+ document.getElementById('stageTbl').innerHTML=D.rows.map(r=>`<tr><td class="met"><b>${r[0]}</b><i>${r[1]}</i></td><td class="num">${r[2]}<small>${r[4]}</small></td><td class="num today">${r[3]}<small>${r[4]}</small>${r[0]==='腰臀比'?'<span class="st good">标准</span>':''}</td><td class="chg">${r[5]}</td></tr>`).join('');
+ document.getElementById('aiStageBrief').textContent=D.brief;
+ const lbl=curStage===3?'第 3 期 06-12':'第 2 期 06-11';
+ ['phF','phS','phB'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=lbl});
+ const r3=document.getElementById('r3');if(r3)r3.style.display=curStage===3?'flex':'none';
+ document.getElementById('stageCmpSub').textContent=`基线 05-29 ─ ${lbl} ｜ 选择两期，看见自己的变化`;
+}
 function slotDone(el,label){if(el.classList.contains('done'))return;el.classList.add('done');el.querySelector('.ps').textContent='已上传 · 点击可重拍';toast(label+'已上传 ✓ 仅你与你授权的人可见');}
 function calcWHR(){
   const w=parseFloat(document.getElementById('dimWaist').value)||0;
