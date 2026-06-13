@@ -1172,7 +1172,7 @@ function openWater(){
       <button onclick="waterDelta(-1)">−</button><b><span id="mWater">${S.water}</span> 杯</b><button onclick="waterDelta(1)">＋</button>
     </div>
     <p style="text-align:center;font-size:14px">合计 ≈ <b id="mWaterMl">${S.water*S.waterCup}</b> ml</p>
-    <p class="muted" style="text-align:center;margin-top:6px">按 1 杯 ≈ ${S.waterCup} ml 计（普通水杯）· 杯量可在「我的」里调整</p>
+    <p class="muted" style="text-align:center;margin-top:6px">按 1 杯 ≈ ${S.waterCup} ml 计——迈思美随手杯刚好一杯 · 杯量可在「我的」里调整</p>
     <button class="btn" style="margin-top:14px" onclick="closeModal()">完成</button>`;
 }
 function waterDelta(d){S.water=Math.max(0,S.water+d);save();document.getElementById('mWater').textContent=S.water;document.getElementById('mWaterMl').textContent=S.water*S.waterCup;}
