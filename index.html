@@ -387,6 +387,9 @@ input[type=number],input[type=text]{border-radius:0;border:0;border-bottom:1px s
     <div class="card" id="surveyCard" style="display:none;cursor:pointer" onclick="go('survey')">
       <div class="row"><div><b style="letter-spacing:.06em">健康调研 · 待完成</b><div class="muted" style="margin-top:5px">3 分钟，入你的健康档案，仅你与你授权的老师可见</div></div><span class="linklike">去填写</span></div>
     </div>
+    <div class="card" id="giftCard" style="cursor:pointer" onclick="go('gift')">
+      <div class="row"><div><b style="letter-spacing:.06em">开启之礼 · 已完成 <span id="giftProg">1/5</span></b><div class="muted" style="margin-top:5px" id="giftHint">完成 5 件建档小事，领取迈思美为你准备的见面礼</div></div><span class="linklike">去看看</span></div>
+    </div>
     <div style="padding:40px 0 8px;text-align:center">
       <div class="eyebrow">今晨体重</div>
       <div id="heroWeight" style="margin-top:14px"></div>
@@ -950,6 +953,24 @@ input[type=number],input[type=text]{border-radius:0;border:0;border-bottom:1px s
     <p class="muted" style="text-align:center;font-size:10.5px;margin-top:14px">撤回或注销不影响你已加入的微信群服务</p>
   </section>
 
+  <!-- S17 开启之礼（新手任务） -->
+  <section class="screen" id="scr-gift">
+    <div class="back" onclick="go('home')">‹</div>
+    <div class="h-title" style="margin-top:30px">开启之礼</div>
+    <div class="h-sub">完成 5 件建档小事，你的服务档案就齐了——迈思美也为你准备了一份见面礼。</div>
+    <div class="card">
+      <div class="row"><span class="eyebrow">完成进度</span><b style="font-family:var(--serif);font-size:22px;font-weight:400"><span id="gProg">1</span><small style="font-size:12px;color:#A9A698"> / 5</small></b></div>
+      <div style="height:4px;background:#EFEDE3;margin-top:14px"><div id="gBar" style="height:100%;background:var(--green);width:20%;transition:width .4s"></div></div>
+    </div>
+    <div class="card" id="gList"></div>
+    <div class="card" style="border-left:2px solid var(--green);padding-left:16px">
+      <span class="eyebrow">你的见面礼</span>
+      <p style="font-size:14px;line-height:1.9;margin-top:10px;font-family:var(--serif)">迈思美 211 餐盘垫 × 轻体随行手册</p>
+      <p class="muted" style="font-size:11px">（演示礼品，以实际活动为准）· 包邮寄出 · 收货信息仅用于寄送本次礼品</p>
+    </div>
+    <button class="btn" id="gClaimBtn" disabled onclick="claimGift()">完成全部 5 项后可领取</button>
+  </section>
+
   <!-- S9 我的 -->
   <section class="screen" id="scr-mine">
     <div class="wordmark" style="margin-top:6px">MYSMIE <small>迈思美</small></div>
@@ -1001,6 +1022,8 @@ if(!S.notices)S.notices=[
   {id:2,type:'survey',title:'完成健康调研，服务更贴心',body:'花 3 分钟填一份健康调研表（涉及健康信息，在你的单独授权范围内），老师才能按你的身体情况给出更合适的陪伴。',done:false,target:'survey'}
 ];
 if(S.surveyDone===undefined)S.surveyDone=false;
+if(!S.tasks)S.tasks={phone:true,survey:false,photos:false,report:false,tongue:false};
+if(!S.gift)S.gift={claimed:false,addr:null};if(S._pc===undefined)S._pc=0;
 const save=()=>localStorage.setItem('msm5',JSON.stringify(S));
 let noticePopped=false;
 const MEAL_NAMES={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐'};
@@ -1028,6 +1051,7 @@ function go(id){
   if(id==='svcDetail'){renderNotes();renderSvcCal();}
   if(id==='svcDay')renderSvcDay();
   if(id==='stageCompare')renderStageCmp();
+  if(id==='gift')renderGift();
   if(id==='camera'&&document.getElementById('camStage').style.display!=='none'){
     const hh=new Date().getHours();const mm=hh<10?'breakfast':hh<15?'lunch':hh<21?'dinner':'snack';
     document.querySelectorAll('#mealTypeRow i').forEach(i=>i.classList.toggle('on',i.dataset.m===mm));
@@ -1072,6 +1096,10 @@ function renderHome(){
   });
   /* 调研卡 + 铃铛 + 弹窗提醒 */
   document.getElementById('surveyCard').style.display=S.surveyDone?'none':'block';
+  const gp=taskProg();const gc=document.getElementById('giftCard');
+  document.getElementById('giftProg').textContent=gp+'/5';
+  if(S.gift.claimed){document.getElementById('giftHint').textContent='收货信息已提交，礼品将在 7 个工作日内寄出';}
+  else if(gp===5){document.getElementById('giftHint').textContent='全部完成！点击领取你的见面礼';}
   const unread=S.notices.filter(n=>!n.done).length;
   document.getElementById('bellDot').style.display=unread?'inline-block':'none';
   if(!noticePopped&&unread){noticePopped=true;setTimeout(()=>showNotice(S.notices.find(n=>!n.done)),600)}
@@ -1082,7 +1110,7 @@ function showNotice(n){
   if(!n)return;
   document.getElementById('modalMask').style.display='flex';
   const tgt=n.target||(n.type==='survey'?'survey':'home');
-  const lbl={survey:'去填写（3 分钟）',weighing:'去称重',camera:'去拍照打卡',summary:'查看当日汇总',stage:'去做阶段记录',stageCompare:'查看阶段对比',share:'管理数据共享',home:'去看看'}[tgt]||'去处理';
+  const lbl={survey:'去填写（3 分钟）',weighing:'去称重',camera:'去拍照打卡',summary:'查看当日汇总',stage:'去做阶段记录',stageCompare:'查看阶段对比',share:'管理数据共享',gift:'去完成最后一项',home:'去看看'}[tgt]||'去处理';
   const btns=n.type==='camp'
     ?`<button class="btn" onclick="acceptNotice(${n.id})">接受加入</button><button class="btn ghost" style="margin-top:10px" onclick="closeModal()">暂不，先看看</button>`
     :`<button class="btn" onclick="const _n=S.notices.find(x=>x.id===${n.id});if(_n){_n.done=true;save()};closeModal();go('${tgt}')${tgt==='weighing'?';startBle()':''}">${lbl}</button><button class="btn ghost" style="margin-top:10px" onclick="closeModal()">稍后再说</button>`;
@@ -1107,7 +1135,7 @@ function openNotices(){
     <button class="btn ghost" style="margin-top:14px" onclick="closeModal()">关闭</button>`;
 }
 function submitSurvey(){
-  S.surveyDone=true;
+  S.surveyDone=true;updateTask('survey');
   const n=S.notices.find(x=>x.type==='survey');if(n)n.done=true;
   save();go('home');toast('已存入你的健康档案 ✓ 老师会按它为你安排陪伴');
   const a=document.getElementById('admSurvey');if(a)a.textContent='✅ 已完成';
@@ -1308,7 +1336,68 @@ function renderStageCmp(){
  const r3=document.getElementById('r3');if(r3)r3.style.display=curStage===3?'flex':'none';
  document.getElementById('stageCmpSub').textContent=`基线 05-29 ─ ${lbl} ｜ 选择两期，看见自己的变化`;
 }
-function slotDone(el,label){if(el.classList.contains('done'))return;el.classList.add('done');el.querySelector('.ps').textContent='已上传 · 点击可重拍';toast(label+'已上传 ✓ 仅你与你授权的人可见');}
+function slotDone(el,label){if(el.classList.contains('done'))return;el.classList.add('done');el.querySelector('.ps').textContent='已上传 · 点击可重拍';toast(label+'已上传 ✓ 仅你与你授权的人可见');
+  if(label.includes('面照')){S._pc=(S._pc||0)+1;if(S._pc>=3)updateTask('photos');else save();}
+  else if(label==='报告')updateTask('report');
+  else if(label==='舌诊照')updateTask('tongue');}
+
+/* ---------- 开启之礼：任务体系 ---------- */
+const TASK_DEFS=[
+ ['phone','手机号认证','登录时已完成','home'],
+ ['survey','填写健康调研','8 组选择题 · 约 3 分钟','survey'],
+ ['photos','上传体型照三面','正面 / 侧面 / 背面','stage'],
+ ['report','上传生化指标报告','照片或 PDF 均可','stage'],
+ ['tongue','上传舌诊照','自然光下拍摄','stage'],
+];
+function taskProg(){return TASK_DEFS.filter(t=>S.tasks[t[0]]).length}
+function updateTask(k){
+  if(S.tasks[k])return;S.tasks[k]=true;save();
+  const p=taskProg();
+  if(p===5){setTimeout(()=>{
+    document.getElementById('modalMask').style.display='flex';
+    document.getElementById('modalBody').innerHTML=`
+      <div style="text-align:center;padding:8px 0 4px">
+        <div style="font-family:var(--serif);font-size:26px;letter-spacing:.1em">全部完成</div>
+        <p style="font-size:13px;line-height:1.9;margin-top:12px;color:var(--forest)">5 件建档小事都做完了——你的服务档案已经完整。<br>现在可以领取迈思美为你准备的见面礼。</p>
+      </div>
+      <button class="btn" style="margin-top:16px" onclick="closeModal();go('gift');claimGift()">领取开启之礼</button>
+      <button class="btn ghost" style="margin-top:6px" onclick="closeModal()">稍后领取</button>`;},500);}
+  else if(p===4&&!S.notices.find(n=>n.type==='gift')){
+    S.notices.unshift({id:Date.now(),type:'gift',title:'还差 1 件小事，开启之礼就到手了',body:'你已完成 4/5 项建档任务——补上最后一件，见面礼立刻可以领取。',done:false,target:'gift'});save();}
+  else{toast(`建档任务 ${p}/5 ✓`)}
+  if(document.getElementById('scr-gift').classList.contains('active'))renderGift();
+}
+function renderGift(){
+  const p=taskProg();
+  document.getElementById('gProg').textContent=p;
+  document.getElementById('gBar').style.width=(p*20)+'%';
+  document.getElementById('gList').innerHTML=TASK_DEFS.map(t=>{
+    const done=S.tasks[t[0]];
+    return `<div class="report-row"><span><b style="font-weight:600">${t[1]}</b><span class="muted" style="display:block;font-size:11px;margin-top:2px">${t[2]}</span></span>
+      ${done?'<b style="color:var(--green)">✓ 已完成</b>':`<span class="linklike" onclick="go('${t[3]}')">去完成</span>`}</div>`}).join('');
+  const btn=document.getElementById('gClaimBtn');
+  if(S.gift.claimed){btn.disabled=true;btn.textContent='已提交收货信息 · 礼品将在 7 个工作日内寄出';}
+  else if(p===5){btn.disabled=false;btn.textContent='领取开启之礼';}
+  else{btn.disabled=true;btn.textContent=`完成全部 5 项后可领取（${p}/5）`;}
+}
+function claimGift(){
+  if(taskProg()<5||S.gift.claimed)return;
+  document.getElementById('modalMask').style.display='flex';
+  document.getElementById('modalBody').innerHTML=`
+    <b style="font-size:16px;letter-spacing:.1em">填写收货信息</b>
+    <p class="muted" style="font-size:11px;margin-top:6px">仅用于寄送本次礼品，不作其他用途</p>
+    <label class="fld">收件人</label><input type="text" id="gName" placeholder="姓名">
+    <label class="fld">手机号</label><input type="number" id="gPhone" placeholder="11 位手机号">
+    <label class="fld">收货地址</label><input type="text" id="gAddr" placeholder="省 / 市 / 区 + 详细地址">
+    <button class="btn" style="margin-top:18px" onclick="submitAddr()">提交，等礼物上门</button>
+    <button class="btn ghost" style="margin-top:6px" onclick="closeModal()">稍后填写</button>`;
+}
+function submitAddr(){
+  const n=document.getElementById('gName').value.trim(),p=document.getElementById('gPhone').value.trim(),a=document.getElementById('gAddr').value.trim();
+  if(!n||!p||!a){toast('请把收件人、手机号、地址填完整');return}
+  S.gift.claimed=true;S.gift.addr={n,p,a};save();closeModal();renderGift();
+  toast('已提交 ✓ 礼品将在 7 个工作日内寄出，发货后通知你');
+}
 function calcWHR(){
   const w=parseFloat(document.getElementById('dimWaist').value)||0;
   const h=parseFloat(document.getElementById('dimHip').value)||1;
