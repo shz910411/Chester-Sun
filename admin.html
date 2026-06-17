@@ -442,7 +442,7 @@ document.querySelectorAll('#dTabs a').forEach(a=>a.classList.toggle('on',a.datas
 /* ===== 演示数据（12 人）+ 本机真实联动 ===== */
 const USERS=[
  {n:'演示用户（你）',real:true,adv:'张老师',last:'新用户',w:null,meals:[0,0,0],water:0,bowel:0,survey:null,streak:1,status:'ok'},
- {n:'李女士',ph:'138****0001',adv:'张老师',last:'19/21',w:58.4,meals:[340,480,390],water:6,bowel:1,survey:'已完成',streak:4,status:'ok'},
+ {n:'李女士',ph:'138****0001',adv:'张老师',last:'19/21',w:58.4,meals:[340,480,390],water:6,bowel:1,sleep:7,ct:'06:42',score:95,survey:'已完成',streak:4,status:'ok'},
  {n:'王女士',ph:'139****0002',adv:'张老师',last:'15/21',w:62.1,meals:[310,0,0],water:3,bowel:1,survey:'已完成',streak:2,status:'ok'},
  {n:'陈女士',ph:'137****0003',adv:'陈顾问',last:'21/21',w:63.2,meals:[360,420,0],water:5,bowel:1,survey:'已完成',streak:4,status:'ok'},
  {n:'赵女士',ph:'136****0004',adv:'陈顾问',last:'12/21',w:70.1,meals:[420,510,460],water:4,bowel:0,survey:'未完成',streak:1,status:'watch'},
@@ -514,7 +514,8 @@ function renderDay(i){
  const w=(60.0-i*0.12).toFixed(1);const meals=st==='full'?ADM_MEALS:[ADM_MEALS[0]];
  box.innerHTML=`<div class="rrow"><span>晨重</span><b>${w} kg（蓝牙体脂秤）</b></div>`+
   meals.map((m,mi)=>`<div class="rrow" style="cursor:pointer" onclick="openMealImg('${(currentUser&&currentUser.n)||'李女士'}',${mi},${m[1]},'${ds}')"><span>${m[0]} ≈${m[1]} kcal <span class="badge ok" style="margin-left:6px">点开看图</span></span><b class="muted" style="font-weight:400">${m[2]} · ${m[3]}</b></div>`).join('')+
-  `<div class="rrow"><span>饮水 / 排便</span><b>${st==='full'?'6 杯 1500ml / 1 次 顺畅':'3 杯 750ml / —'}</b></div>`;
+  `<div class="rrow"><span>饮水 / 排便 / 睡眠</span><b>${st==='full'?'6 杯 1500ml / 1 次 / 7 小时':'3 杯 750ml / — / 6 小时'}</b></div>`+
+  `<div class="rrow"><span>老师点评分</span><b>${st==='full'?'95 分':'—'}</b></div>`;
 }
 function openMealImg(name,mi,kcal,ds){
  const M=ADM_MEALS[mi]||ADM_MEALS[0];
@@ -585,12 +586,12 @@ function renderShares(){$('sBody').innerHTML=SHARES.map((s,i)=>`<tr><td>${s.o}</
 function dl(name,rows){const csv='﻿'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();toast('已导出 '+name)}
 function exportCSV(kind){hydrate();
- if(kind==='checkin')dl('打卡总表-0612.csv',[['用户','老师','晨重kg','早餐kcal','午餐kcal','晚餐kcal','饮水杯','排便次','是否完整'],
-  ...USERS.map(u=>[u.n,u.adv,u.w||'未称',...u.meals.map(k=>k||'—'),u.water||0,u.bowel||0,(u.w&&u.meals.filter(Boolean).length>=3)?'完整':'未完整'])]);
+ if(kind==='checkin')dl('打卡总表-0612.csv',[['用户','老师','打卡时间','晨重kg','早餐kcal','午餐kcal','晚餐kcal','饮水杯','排便次','昨晚睡眠h','点评分','是否补卡','是否完整'],
+  ...USERS.map(u=>[u.n,u.adv,u.ct||(u.w?'—':'未打卡'),u.w||'未称',...u.meals.map(k=>k||'—'),u.water||0,u.bowel||0,u.sleep||'—',u.score||'—','否',(u.w&&u.meals.filter(Boolean).length>=3)?'完整':'未完整'])]);
  else if(kind==='users')dl('用户列表-0612.csv',[['用户','手机号','老师','今晨体重','今日餐数','调研','连续打卡天数','状态'],
   ...USERS.map(u=>[u.n,u.ph||'',u.adv,u.w||'未称',u.meals.filter(Boolean).length,u.survey||'未完成',u.streak,u.status])]);
  else if(kind==='daily')dl('日报-0612.csv',[['指标','数值'],['在营用户',12],['称重完成','9/12 (75%)'],['餐食记录','8/12 (67%)'],['完整打卡','7/12'],['平均摄入(估算)','1180 kcal'],['体重较昨日(均值)','-0.18 kg'],['连续2天未记录','吴女士'],['体重波动>1kg','赵女士'],['调研超48h未填','孙女士']]);
- else if(kind==='user1')dl('李女士-记录-0612.csv',[['日期','晨重kg','早餐','午餐','晚餐','饮水','排便'],['06-12','58.4','340','480','390','6杯','1次'],['06-11','58.6','310','450','380','6杯','1次'],['06-10','58.8','330','420','—','5杯','1次']]);}
+ else if(kind==='user1')dl('李女士-记录-0612.csv',[['日期','打卡时间','晨重kg','早餐','午餐','晚餐','饮水','排便','睡眠h','点评分'],['06-12','06:42','58.4','340','480','390','6杯','1次','7','95'],['06-11','06:51','58.6','310','450','380','6杯','1次','7','92'],['06-10','06:39','58.8','330','420','—','5杯','1次','6','88']]);}
 
 /* 启动 */
 $('dashDate').textContent=new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'});

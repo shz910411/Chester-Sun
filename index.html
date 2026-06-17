@@ -408,9 +408,13 @@ input[type=number],input[type=text]{border-radius:0;border:0;border-bottom:1px s
       <div style="text-align:center;margin-top:16px"><span class="linklike" onclick="go('camera')">拍照打卡，AI 帮你看吃了什么</span></div>
     </div>
     <div class="card">
-      <div class="row">
+      <div class="row" style="margin-bottom:14px">
         <span class="linklike" onclick="openWater()" style="text-decoration:none"><span class="eyebrow" style="text-indent:0;letter-spacing:.2em">饮水</span>　<b style="font-family:var(--serif);font-size:19px;font-weight:400"><span id="waterN">0</span></b> 杯 · <span id="waterMl" class="muted" style="font-size:12px">0 ml</span>　<u style="text-underline-offset:4px">记</u></span>
         <span class="linklike" onclick="openBowel()" style="text-decoration:none"><span class="eyebrow" style="text-indent:0;letter-spacing:.2em">排便</span>　<b style="font-family:var(--serif);font-size:19px;font-weight:400"><span id="bowelN">0</span></b> 次 <span id="bowelS" class="muted" style="font-size:12px"></span>　<u style="text-underline-offset:4px">记</u></span>
+      </div>
+      <div class="row">
+        <span class="linklike" onclick="openSleep()" style="text-decoration:none"><span class="eyebrow" style="text-indent:0;letter-spacing:.2em">昨晚睡眠</span>　<b style="font-family:var(--serif);font-size:19px;font-weight:400"><span id="sleepN">—</span></b> <span class="muted" style="font-size:12px">小时</span>　<u style="text-underline-offset:4px">记</u></span>
+        <span class="muted" style="font-size:11px;max-width:46%;text-align:right">23 点前入睡，是轻体的隐形助攻</span>
       </div>
     </div>
     <div class="card" id="serviceEntry" style="cursor:pointer" onclick="go('service')">
@@ -1016,7 +1020,7 @@ const S = JSON.parse(localStorage.getItem('msm5') || 'null') || {
   shares:[{n:'张老师（服务老师）',d:'我邀请 · 06-08 建立',e:'张'},{n:'陈顾问（营养支持）',d:'公司安排 · 06-09 建立',e:'陈'}]
 };
 S.meals=S.meals||{breakfast:null,lunch:null,dinner:null,snack:null};
-S.water=S.water||0;S.waterCup=S.waterCup||250;S.bowel=S.bowel||0;S.bowelStatus=S.bowelStatus||'';S.notes=S.notes||[];
+S.water=S.water||0;S.waterCup=S.waterCup||250;S.bowel=S.bowel||0;S.bowelStatus=S.bowelStatus||'';S.sleep=S.sleep||null;S.notes=S.notes||[];
 S.shares=S.shares||[{n:'张老师（服务老师）',d:'我邀请 · 06-08 建立',e:'张'},{n:'陈顾问（营养支持）',d:'公司安排 · 06-09 建立',e:'陈'}];
 if(!S.notices)S.notices=[
   {id:1,type:'camp',title:'新一期「21 天轻体伙伴营」要开营啦',body:'你上一期的记录我们都帮你留着。张老师邀请你这一期继续一起——接受后，老师就能接着陪伴你的记录。',done:false,target:'home'},
@@ -1090,6 +1094,7 @@ function renderHome(){
   document.getElementById('waterMl').textContent=(S.water*S.waterCup)+' ml';
   document.getElementById('bowelN').textContent=S.bowel;
   document.getElementById('bowelS').textContent=S.bowel?(S.bowelStatus||'已记录'):'未记录';
+  document.getElementById('sleepN').textContent=S.sleep||'—';
   const g=document.getElementById('mealMini');g.innerHTML='';
   Object.keys(S.meals).forEach(k=>{
     const m=S.meals[k];
@@ -1192,6 +1197,16 @@ function openBowel(){
 }
 function bowelDelta(d){S.bowel=Math.max(0,S.bowel+d);save();document.getElementById('mBowel').textContent=S.bowel;}
 function setBowelStatus(s){S.bowelStatus=s;save();document.querySelectorAll('#bowelSeg i').forEach(i=>i.classList.toggle('on',i.textContent===s));}
+function openSleep(){
+  document.getElementById('modalMask').style.display='flex';
+  const opts=[5,6,7,8,9];
+  document.getElementById('modalBody').innerHTML=`
+    <b style="font-size:16px;letter-spacing:.1em">昨晚睡了多久</b>
+    <p class="muted" style="margin:8px 0 4px">睡眠影响代谢与食欲，是轻体的隐形助攻</p>
+    <div class="seg" style="flex-wrap:wrap">${opts.map(o=>`<i class="${S.sleep==o+'+' || (o===5&&S.sleep&&parseFloat(S.sleep)<6)?'on':''}" onclick="setSleep('${o===9?'9+':o}')">${o===5?'<6':o===9?'9+':o} 小时</i>`).join('')}</div>
+    <button class="btn" style="margin-top:16px" onclick="closeModal()">完成</button>`;
+}
+function setSleep(v){S.sleep=v;save();document.querySelectorAll('#modalBody .seg i').forEach(i=>i.classList.remove('on'));event.target.classList.add('on');toast('已记录昨晚睡眠 '+v+' 小时')}
 
 /* ---------- 称重流程 ---------- */
 let bleTimer=null;
@@ -1475,6 +1490,7 @@ function renderSummary(){
     ['摄入（估算）',`≈ ${k} kcal · 已记 ${mealsDone}/4 餐`],
     ['饮水',`${S.water} 杯 · ${S.water*S.waterCup} ml`],
     ['排便',S.bowel?`${S.bowel} 次 · ${S.bowelStatus||'已记录'}`:'未记录'],
+    ['昨晚睡眠',S.sleep?`${S.sleep} 小时`:'未记录'],
     ['连续记录','1 天'],
   ];
   document.getElementById('reportRows').innerHTML=rows.map(r=>`<div class="report-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
