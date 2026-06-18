@@ -1,0 +1,48 @@
+# 迈思美后端 —— 与服务器现有 Docker 系统【严格隔离】
+# 隔离要点：独立网络 / 独立端口 8090 / 资源硬上限 / 独立卷 / maisimei- 前缀命名
+# 现有容器、端口、数据一概不碰；一条 `docker compose down` 即可整套移除。
+name: maisimei
+
+services:
+  maisimei-db:
+    image: postgres:16-alpine
+    container_name: maisimei-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-maisimei}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-maisimei}
+    volumes:
+      - maisimei-pgdata:/var/lib/postgresql/data
+    networks:
+      - maisimei-net
+    # 数据库【不暴露端口到宿主】——只在 maisimei-net 内部可达，外网碰不到
+    mem_limit: 512m
+    cpus: 0.5
+
+  maisimei-api:
+    build: .
+    container_name: maisimei-api
+    restart: unless-stopped
+    depends_on:
+      - maisimei-db
+    env_file:
+      - .env
+    environment:
+      DB_HOST: maisimei-db
+    ports:
+      - "8090:3000"   # 只暴露 8090（避开现有占用的全部端口）
+    networks:
+      - maisimei-net
+    # 资源硬上限：即使满载也最多 1 核 / 1G 内存，绝不抢光资源拖垮现有业务
+    mem_limit: 1g
+    cpus: 1.0
+
+networks:
+  maisimei-net:
+    name: maisimei-net
+    driver: bridge      # 独立网络，与现有容器互不可见
+
+volumes:
+  maisimei-pgdata:
+    name: maisimei-pgdata

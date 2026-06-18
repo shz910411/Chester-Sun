@@ -1,0 +1,19 @@
+# 依赖与构建产物
+node_modules/
+dist/
+
+# 环境变量与密钥（绝不进 Git）
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# 日志
+*.log
+npm-debug.log*
+
+# 系统
+.DS_Store
+.idea/
+.vscode/
