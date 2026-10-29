@@ -1,24 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow"><title>孙禾的星星蛋成长记</title>
-<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;font:16px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff5f8;color:#5a3540;text-align:center}</style>
-</head><body><div id="m">正在打开孙禾的星星蛋…</div>
-<script>
-(async function(){
-  var m=document.getElementById('m');
-  try{
-    var k=location.hash.slice(1);
-    if(!k) throw new Error('链接不完整，# 后面那段没带上');
-    var raw=Uint8Array.from(atob(k.replace(/-/g,'+').replace(/_/g,'/')),function(c){return c.charCodeAt(0);});
-    var key=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['decrypt']);
-    var r=await fetch('sunhe.bin?v=d6dcbc',{cache:'no-cache'});
-    if(!r.ok) throw new Error('下载失败（'+r.status+'）');
-    var buf=new Uint8Array(await r.arrayBuffer());
-    var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:buf.slice(0,12)},key,buf.slice(12));
-    var html=await new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
-    document.open(); document.write(html); document.close();
-  }catch(e){
-    m.textContent='没打开：'+(e&&e.message||e)+'。请把整段链接复制到 Safari 里打开，或换个网络再试。';
-  }
-})();
-</script></body></html>
+<meta name="robots" content="noindex,nofollow"><title>星星蛋成长记</title>
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;font:16px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:#fff5f8;color:#5a3540;text-align:center}.c{background:#fff;border-radius:22px;padding:26px 22px;max-width:360px;box-shadow:0 10px 36px rgba(220,120,160,.18)}b{font-size:18px}</style>
+</head><body><div class="c"><b>这个旧链接已停用</b><p>请改用 10 月 29 日发的新链接（要输密码）。</p><p>在这台手机的 Safari 里打开新链接，旧链接里记过的打卡会自动带过去，不会丢。</p></div></body></html>

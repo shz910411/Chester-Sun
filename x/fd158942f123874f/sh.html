@@ -1,0 +1,51 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>星星蛋成长记</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;font:16px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:#fff5f8;color:#5a3540}
+.card{background:#fff;border-radius:22px;padding:28px 22px 24px;width:100%;max-width:340px;text-align:center;box-shadow:0 10px 36px rgba(220,120,160,.18)}
+.egg{width:58px;height:72px;margin:0 auto 12px;border-radius:50% 50% 46% 46%/58% 58% 42% 42%;background:linear-gradient(160deg,#ffe3ee,#ffb6cf);box-shadow:inset -6px -8px 0 rgba(255,255,255,.35)}
+h1{font-size:19px;margin:0 0 4px}
+p{margin:0 0 16px;font-size:14px;color:#9a7684}
+input{width:100%;font-size:26px;letter-spacing:12px;text-align:center;padding:12px;border:1.5px solid #f1c6d6;border-radius:14px;outline:none;color:#5a3540;background:#fffafc}
+input:focus{border-color:#e98bb0}
+button{width:100%;margin-top:12px;font-size:17px;padding:13px;border:0;border-radius:14px;background:#e98bb0;color:#fff;font-weight:600}
+button:disabled{opacity:.6}
+#m{min-height:20px;margin-top:12px;font-size:14px;color:#c0577f}
+</style>
+</head><body><form class="card" id="f" autocomplete="off">
+<div class="egg"></div><h1>星星蛋成长记</h1><p>输入密码打开</p>
+<input id="p" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" aria-label="密码">
+<button id="b" type="submit">打开</button><div id="m"></div></form>
+<script>
+(function(){
+  var m=document.getElementById('m'), p=document.getElementById('p'), b=document.getElementById('b');
+  var k=location.hash.slice(1), binP=null;
+  function get(){ if(!binP) binP=fetch('sh.bin?v=dd2304',{cache:'no-cache'}).then(function(r){ if(!r.ok) throw new Error('下载失败（'+r.status+'）'); return r.arrayBuffer(); }).catch(function(e){ binP=null; throw e; }); return binP; }
+  if(!k){ m.textContent='链接不完整：# 后面那段没带上，请复制完整链接再打开'; b.disabled=true; return; }
+  if(!(window.crypto&&crypto.subtle&&window.DecompressionStream)){ m.textContent='这个浏览器太旧，请用手机自带的 Safari 打开'; b.disabled=true; return; }
+  get().catch(function(){});
+  setTimeout(function(){ try{ p.focus(); }catch(e){} }, 300);
+  document.getElementById('f').onsubmit=async function(ev){
+    ev.preventDefault(); var pw=p.value.trim(); if(!pw){ p.focus(); return; }
+    b.disabled=true; m.textContent='正在打开…';
+    try{
+      var raw=Uint8Array.from(atob(k.replace(/-/g,'+').replace(/_/g,'/')),function(c){return c.charCodeAt(0);});
+      var pwb=new TextEncoder().encode(pw), mat=new Uint8Array(raw.length+pwb.length); mat.set(raw,0); mat.set(pwb,raw.length);
+      var buf=new Uint8Array(await get());
+      var km=await crypto.subtle.importKey('raw',mat,'PBKDF2',false,['deriveKey']);
+      var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:buf.slice(0,16),iterations:200000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+      var pt;
+      try{ pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:buf.slice(16,28)},key,buf.slice(28)); }
+      catch(e){ m.textContent='密码不对，再试一次'; p.value=''; p.focus(); b.disabled=false; return; }
+      var html=await new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+      document.open(); document.write(html); document.close();
+    }catch(e){
+      m.textContent='没打开：'+(e&&e.message||e)+'。换个网络或用 Safari 再试'; b.disabled=false;
+    }
+  };
+})();
+</script></body></html>
